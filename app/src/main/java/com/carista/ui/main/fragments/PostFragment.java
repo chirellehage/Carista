@@ -57,10 +57,12 @@ public class PostFragment extends Fragment {
                 // whenever data at this location is updated.
 
                 adapter.clearData();
-                for (DataSnapshot post : dataSnapshot.getChildren()) {
-                    String id = post.getKey();
-                    PostModel postModel = new PostModel(id, post.getValue());
-                    adapter.addPost(postModel);
+                for (DataSnapshot user : dataSnapshot.getChildren()) {
+                    for (DataSnapshot post : user.getChildren()) {
+                        String id = post.getKey();
+                        PostModel postModel = new PostModel(id, post.getValue());
+                        adapter.addPost(postModel);
+                    }
                 }
             }
 

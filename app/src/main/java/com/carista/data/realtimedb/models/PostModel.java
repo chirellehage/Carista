@@ -11,6 +11,11 @@ public class PostModel {
     @PropertyName("image")
     public String image;
 
+    public PostModel(String title, String image) {
+        this.title = title;
+        this.image = image;
+    }
+
     public PostModel(String id, Object data) {
         HashMap<String, String> _data = (HashMap<String, String>) data;
         this.id = id;

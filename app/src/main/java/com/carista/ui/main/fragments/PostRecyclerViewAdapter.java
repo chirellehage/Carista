@@ -63,5 +63,6 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
 
     public void clearData() {
         this.items.clear();
+        notifyDataSetChanged();
     }
 }

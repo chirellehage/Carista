@@ -60,6 +60,10 @@ dependencies {
 
     // multidex
     implementation 'com.android.support:multidex:1.0.3'
+
+    // firebase storage
+    implementation 'com.google.firebase:firebase-storage'
+
 }
 
 apply plugin: 'com.google.gms.google-services'
