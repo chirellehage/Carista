@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.carista.R;
 import com.carista.utils.Data;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -65,7 +64,7 @@ public class UploadActivity extends AppCompatActivity {
             // Create a reference to "mountains.jpg"
             long id = new Date().getTime();
             String name = id + ".jpg";
-            StorageReference mountainsRef = storageRef.child(name);
+            StorageReference imageRef = storageRef.child(name);
 
             // Get the data from an ImageView as bytes
             imageView.setDrawingCacheEnabled(true);
@@ -75,14 +74,12 @@ public class UploadActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] data = baos.toByteArray();
 
-            UploadTask uploadTask = mountainsRef.putBytes(data);
-            uploadTask.addOnFailureListener(exception -> Snackbar.make(findViewById(R.id.upload_layout), R.string.failed_to_upload, Snackbar.LENGTH_SHORT).show()).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> Data.uploadPost(titleEditText.getText().toString(), id, uri.toString()));
-                    finish();
-                }
-            });
+            UploadTask uploadTask = imageRef.putBytes(data);
+            uploadTask.addOnFailureListener(exception -> Snackbar.make(findViewById(R.id.upload_layout), R.string.failed_to_upload, Snackbar.LENGTH_SHORT).show())
+                    .addOnSuccessListener(taskSnapshot -> {
+                        taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> Data.uploadPost(titleEditText.getText().toString(), id, uri.toString()));
+                        finish();
+                    });
         });
     }
 
