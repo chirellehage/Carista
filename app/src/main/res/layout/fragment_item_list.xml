@@ -20,7 +20,7 @@
         android:id="@+id/list"
         android:name="com.carista.ui.main.fragments.PostFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
@@ -28,5 +28,6 @@
         tools:listitem="@layout/fragment_item"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title"
+        android:paddingBottom="?attr/actionBarSize"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>
