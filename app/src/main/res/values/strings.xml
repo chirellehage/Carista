@@ -27,4 +27,6 @@
     <string name="error_getting_image">Error selecting image</string>
     <string name="insert_title">Insert title!</string>
     <string name="failed_to_upload">Failed to upload image</string>
+    <string name="new_upload_title"> Post title</string>
+    <string name="dummy_upload">Upload a new post</string>
 </resources>
