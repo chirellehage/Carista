@@ -2,18 +2,16 @@ package com.carista;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import com.carista.photoeditor.photoeditor.EditImageActivity;
 import com.carista.ui.main.SectionsPagerAdapter;
-import com.carista.ui.main.UploadActivity;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
 
         fab.setOnClickListener(view -> {
-            startActivity(new Intent(this, UploadActivity.class));
+            startActivity(new Intent(this, EditImageActivity.class));
         });
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {

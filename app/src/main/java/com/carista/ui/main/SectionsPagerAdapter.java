@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.carista.R;
+import com.carista.ui.main.fragments.EditorFragment;
 import com.carista.ui.main.fragments.PostFragment;
 import com.carista.ui.main.fragments.UserFragment;
 
@@ -32,6 +33,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case 0:
                 return new PostFragment();
+            case 1:
+                return new EditorFragment();
             case 2:
                 return new UserFragment();
         }
