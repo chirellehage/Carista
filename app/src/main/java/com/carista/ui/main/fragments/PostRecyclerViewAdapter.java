@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.carista.R;
@@ -39,7 +40,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = this.items.get(position);
         holder.mTitleView.setText(this.items.get(position).title);
-        Picasso.get().load(this.items.get(position).image).into(holder.mImageView);
+        Picasso.get().load(items.get(position).image).resize(holder.mCardView.getWidth(),600).centerCrop().into(holder.mImageView);
     }
 
     @Override
@@ -51,6 +52,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         public final View mView;
         public final TextView mTitleView;
         public final ImageView mImageView;
+        public final CardView mCardView;
         public PostModel mItem;
 
         public ViewHolder(View view) {
@@ -58,6 +60,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             mView = view;
             mTitleView = view.findViewById(R.id.post_title);
             mImageView = view.findViewById(R.id.post_image);
+            mCardView = view.findViewById(R.id.post_card);
         }
     }
 
