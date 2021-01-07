@@ -12,16 +12,19 @@
         android:layout_height="wrap_content"
         android:text="@string/dummy_upload"
         android:gravity="center_horizontal"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/upload_card"
+        app:layout_constraintBottom_toTopOf="@id/upload_card"
+        android:layout_marginBottom="15dp"
         android:textStyle="bold"
         android:textSize="20dp"
-        android:layout_marginTop="80dp"
         />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/upload_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -29,7 +32,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp">
 
             <EditText
                 android:id="@+id/new_post_title"
@@ -53,7 +59,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:gravity="center_horizontal">
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="15dp">
 
                 <Button
                     android:id="@+id/new_post_choose"

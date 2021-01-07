@@ -6,16 +6,6 @@
     android:layout_height="wrap_content"
     >
 
-    <TextView
-        android:id="@+id/title"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:textStyle="bold"
-        android:textSize="20dp"
-        android:text="@string/posts_fragment_title" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:name="com.carista.ui.main.fragments.PostFragment"
@@ -23,11 +13,12 @@
         android:layout_height="0dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
+        android:layout_marginTop="15dp"
         app:layoutManager="LinearLayoutManager"
         tools:context=".ui.main.fragments.PostFragment"
         tools:listitem="@layout/fragment_item"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintTop_toTopOf="parent"
         android:paddingBottom="?attr/actionBarSize"
         />
 </androidx.constraintlayout.widget.ConstraintLayout>

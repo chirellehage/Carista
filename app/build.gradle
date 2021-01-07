@@ -19,13 +19,22 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    flavorDimensions 'payment'
+    productFlavors {
+        paid {
+            dimension 'payment'
+        }
+        free {
+            dimension 'payment'
+        }
     }
 }
 
@@ -64,6 +73,11 @@ dependencies {
     // firebase storage
     implementation 'com.google.firebase:firebase-storage'
 
+    // photo editor
+    implementation 'ja.burhanrashid52:photoeditor:1.1.0'
+
+    // Circle ImageView
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

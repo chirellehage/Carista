@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.carista.R;
 import com.carista.ui.main.fragments.PostFragment;
+import com.carista.ui.main.fragments.UploadFragment;
 import com.carista.ui.main.fragments.UserFragment;
 
 /**
@@ -32,6 +33,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case 0:
                 return new PostFragment();
+            case 1:
+                return new UploadFragment();
             case 2:
                 return new UserFragment();
         }
@@ -48,7 +51,7 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        // Show 2 total pages.
+        // Show 3 total pages.
         return 3;
     }
 }
