@@ -40,18 +40,18 @@ public class EditorFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         PhotoEditorView mPhotoEditorView = view.findViewById(R.id.photoEditorView);
 
-        mPhotoEditorView.getSource().setImageResource(R.drawable.car_placeholder);
+        //mPhotoEditorView.getSource().setImageResource(R.drawable.car_placeholder);
 
         //Use custom font using latest support library
 //        Typeface mTextRobotoTf = ResourcesCompat.getFont(getContext(), R.font.roboto_medium);
 
         //loading font from assest
-        Typeface mEmojiTypeFace = Typeface.createFromAsset(getContext().getAssets(), "emojione-android.ttf");
+        //Typeface mEmojiTypeFace = Typeface.createFromAsset(getContext().getAssets(), "emojione-android.ttf");
 
 
         PhotoEditor mPhotoEditor = new PhotoEditor.Builder(getContext(), mPhotoEditorView)
                 .setDefaultTextTypeface(Typeface.DEFAULT)
-                .setDefaultEmojiTypeface(mEmojiTypeFace)
+                //.setDefaultEmojiTypeface(mEmojiTypeFace)
                 .setPinchTextScalable(true)
                 .build();
     }
