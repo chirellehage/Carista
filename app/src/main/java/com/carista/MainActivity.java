@@ -1,6 +1,7 @@
 package com.carista;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
@@ -37,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(view -> {
             startActivity(new Intent(this, EditImageActivity.class));
         });
+
+        tabs.setSelectedTabIndicatorColor(Color.parseColor("#FF0000"));
+        tabs.setSelectedTabIndicatorHeight((int) (5 * getResources().getDisplayMetrics().density));
+        tabs.setTabTextColors(Color.parseColor("#727272"), Color.parseColor("#ffffff"));
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             //TODO open home screen
