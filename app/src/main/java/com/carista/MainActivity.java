@@ -1,6 +1,7 @@
 package com.carista;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -23,9 +24,20 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 100;
-
+    private static final String PREFS_NAME = "prefs";
+    private static final String PREF_DARK_THEME = "dark_theme";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
+
+        if(useDarkTheme) {
+            setTheme(R.style.Theme_Carista_dark);
+        }else{
+            setTheme(R.style.Theme_Carista_NoActionBar);
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
@@ -40,8 +52,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         tabs.setSelectedTabIndicatorColor(Color.parseColor("#FF0000"));
-        tabs.setSelectedTabIndicatorHeight((int) (5 * getResources().getDisplayMetrics().density));
+//        tabs.setSelectedTabIndicatorHeight((int) (5 * getResources().getDisplayMetrics().density));
         tabs.setTabTextColors(Color.parseColor("#727272"), Color.parseColor("#ffffff"));
+
+
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             //TODO open home screen

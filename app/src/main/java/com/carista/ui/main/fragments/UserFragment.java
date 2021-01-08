@@ -1,6 +1,9 @@
 package com.carista.ui.main.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -23,7 +26,10 @@ import com.google.firebase.auth.FirebaseAuth;
 public class UserFragment extends Fragment {
 
     private Button logoutButton;
+    private Button switchButton;
 
+    private static final String PREFS_NAME = "prefs";
+    private static final String PREF_DARK_THEME = "dark_theme";
     public UserFragment() {
         // Required empty public constructor
     }
@@ -51,5 +57,27 @@ public class UserFragment extends Fragment {
             startActivity(new Intent(getContext(), MainActivity.class));
             getActivity().finish();
         });
+
+        switchButton = view.findViewById(R.id.btn_theme);
+
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                getActivity().setTheme(R.style.Theme_Carista_NoActionBar);
+//                getActivity().setTheme(R.style.Theme_Carista_NoActionBar);
+//                getActivity().recreate();
+                SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME,  Context.MODE_PRIVATE);
+                boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putBoolean(PREF_DARK_THEME, !useDarkTheme);
+                editor.apply();
+                Intent intent = getActivity().getIntent();
+                getActivity().finish();
+                startActivity(intent);
+//                getActivity().recreate();
+            }
+        });
+
+
     }
 }

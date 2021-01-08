@@ -6,6 +6,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.main.fragments.UserFragment">
 
+    <Button
+        android:id="@+id/btn_theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="52dp"
+        android:text="@string/theme"
+        app:layout_constraintBottom_toTopOf="@+id/btn_logout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btn_logout"
@@ -17,4 +26,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="20dp"
         />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
