@@ -63,9 +63,6 @@ public class UserFragment extends Fragment {
         switchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                getActivity().setTheme(R.style.Theme_Carista_NoActionBar);
-//                getActivity().setTheme(R.style.Theme_Carista_NoActionBar);
-//                getActivity().recreate();
                 SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME,  Context.MODE_PRIVATE);
                 boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
                 SharedPreferences.Editor editor = preferences.edit();
@@ -74,7 +71,6 @@ public class UserFragment extends Fragment {
                 Intent intent = getActivity().getIntent();
                 getActivity().finish();
                 startActivity(intent);
-//                getActivity().recreate();
             }
         });
 
