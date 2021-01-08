@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import com.carista.data.db.AppDatabase;
 import com.carista.photoeditor.photoeditor.EditImageActivity;
 import com.carista.ui.main.SectionsPagerAdapter;
 import com.firebase.ui.auth.AuthUI;
@@ -75,4 +76,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+//    @Override
+//    protected void onDestroy() {
+//        super.onDestroy();
+//        AppDatabase.terminate();
+//    }
 }

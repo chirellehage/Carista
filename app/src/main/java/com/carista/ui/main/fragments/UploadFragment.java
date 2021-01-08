@@ -100,7 +100,7 @@ public class UploadFragment extends Fragment {
             uploadTask.addOnFailureListener(exception -> Snackbar.make(getActivity().getCurrentFocus(), R.string.failed_to_upload, Snackbar.LENGTH_SHORT).show())
                     .addOnSuccessListener(taskSnapshot -> {
                         taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
-                            Data.uploadPost(titleEditText.getText().toString(), id, uri.toString());
+                            Data.uploadPost(titleEditText.getText().toString().trim(), id, uri.toString());
                             imageView.setImageBitmap(null);
                             titleEditText.setText("");
                             Snackbar.make(getActivity().getCurrentFocus(),R.string.success_upload,Snackbar.LENGTH_SHORT).show();

@@ -1,7 +1,9 @@
 package com.carista.ui.main.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -9,6 +11,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -18,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.carista.MainActivity;
@@ -47,6 +51,7 @@ public class UserFragment extends Fragment {
     private TextView userNickname;
     private EditText usernameEdit;
     private CircleImageView userAvatar;
+    private Switch darkThemeSwitch;
     private Intent chooser;
 
     public UserFragment() {
@@ -75,6 +80,29 @@ public class UserFragment extends Fragment {
         userAvatar=view.findViewById(R.id.user_avatar);
         usernameEdit=view.findViewById(R.id.username_change_edit);
         usernameChangeButton=view.findViewById(R.id.username_change_btn);
+        darkThemeSwitch=view.findViewById(R.id.dark_theme_switch);
+
+        SharedPreferences sharedPreferences=getActivity().getSharedPreferences(getString(R.string.dark_theme_pref),Context.MODE_PRIVATE);
+        int isDarkTheme = sharedPreferences.getInt(getString(R.string.dark_theme_enabled),1);
+
+        if(isDarkTheme==1)
+            darkThemeSwitch.setChecked(true);
+        else
+            darkThemeSwitch.setChecked(false);
+
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+
+        darkThemeSwitch.setOnClickListener(view1 -> {
+            if(darkThemeSwitch.isChecked()){
+                editor.putInt(getString(R.string.dark_theme_enabled),1);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            }
+            else{
+                editor.putInt(getString(R.string.dark_theme_enabled),0);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
+            editor.apply();
+        });
 
         UserInfo userInfo= FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -123,7 +151,8 @@ public class UserFragment extends Fragment {
 
         usernameChangeButton.setOnClickListener(view1 -> {
             String newNickname=usernameEdit.getText().toString();
-            if(newNickname==null)
+            newNickname=newNickname.trim();
+            if(newNickname==null || newNickname.isEmpty())
                 return;
             usernameEdit.setText("");
             Data.uploadNickname(newNickname);
