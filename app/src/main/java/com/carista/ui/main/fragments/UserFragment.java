@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -66,11 +67,19 @@ public class UserFragment extends Fragment {
                 SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME,  Context.MODE_PRIVATE);
                 boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
                 SharedPreferences.Editor editor = preferences.edit();
-                editor.putBoolean(PREF_DARK_THEME, !useDarkTheme);
-                editor.apply();
-                Intent intent = getActivity().getIntent();
-                getActivity().finish();
-                startActivity(intent);
+                if(useDarkTheme){
+                    editor.putBoolean(PREF_DARK_THEME, false);
+                    editor.apply();
+//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    ((MainActivity)getActivity()).switchTheme(false);
+                }else {
+                    editor.putBoolean(PREF_DARK_THEME, true);
+                    editor.apply();
+                    ((MainActivity)getActivity()).switchTheme(true);
+//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
+
+
             }
         });
 

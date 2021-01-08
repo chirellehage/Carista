@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Carista.dark">
+        android:theme="@style/Theme.Carista.NoActionBar">
         <activity android:name=".ui.main.UploadActivity"></activity>
         <activity android:name=".photoeditor.photoeditor.EditImageActivity"></activity>
         <activity
