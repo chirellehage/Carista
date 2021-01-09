@@ -17,6 +17,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Arrays;
 import java.util.List;
 import com.carista.utils.Data;
 public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder>{
@@ -28,9 +29,14 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         this.items = new ArrayList<>();
     }
 
-    public void addPost(PostModel postModel) {
-        this.items.add(postModel);
-        notifyItemChanged(this.items.size() + 1);
+    public void addPost(PostModel... postModel) {
+        this.items.addAll(Arrays.asList(postModel));
+        notifyDataSetChanged();
+    }
+
+    public void addPost(List<PostModel> postModels) {
+        this.items.addAll(postModels);
+        notifyDataSetChanged();
     }
 
     public  void removePost(int position){
