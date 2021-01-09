@@ -1,3 +1,4 @@
+
 plugins {
     id 'com.android.application'
 }
@@ -19,7 +20,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -27,17 +28,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    flavorDimensions 'payment'
-    productFlavors {
-        paid {
-            dimension 'payment'
-        }
-        free {
-            dimension 'payment'
-        }
-    }
 }
-
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -73,6 +64,7 @@ dependencies {
     // firebase storage
     implementation 'com.google.firebase:firebase-storage'
 
+
     // photo editor
     implementation 'ja.burhanrashid52:photoeditor:1.1.0'
 
@@ -80,6 +72,7 @@ dependencies {
 
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
+
 }
 
 apply plugin: 'com.google.gms.google-services'

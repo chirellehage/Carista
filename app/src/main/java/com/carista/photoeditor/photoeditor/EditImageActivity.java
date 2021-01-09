@@ -383,6 +383,24 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
     }
 
+    private void preventClosingEditor() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Do you really want to quit?");
+        builder.setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        builder.create().show();
+    }
+
     @Override
     public void onFilterSelected(PhotoFilter photoFilter) {
         mPhotoEditor.setFilterEffect(photoFilter);
@@ -466,7 +484,9 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         } else if (!mPhotoEditor.isCacheEmpty()) {
             showSaveDialog();
         } else {
-            super.onBackPressed();
+            preventClosingEditor();
+            //super.onBackPressed();
         }
+
     }
 }
