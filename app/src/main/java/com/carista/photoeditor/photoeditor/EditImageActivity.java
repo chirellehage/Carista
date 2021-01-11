@@ -84,6 +84,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private ConstraintLayout mRootView;
     private final ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
+    private EditText edittext;
+    private ImageView img;
 
     @Nullable
     @VisibleForTesting
@@ -262,17 +264,21 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 View Dview = layoutinflater.inflate(R.layout.edittext_with_button,null);
                 builder.setCancelable(false);
                 builder.setView(Dview);
-                EditText edittext = (EditText) Dview.findViewById(R.id.post_title);
-                Button Submit = (Button) Dview.findViewById(R.id.post_upload);
+                edittext = (EditText) Dview.findViewById(R.id.post_title);
+                Button Upload = (Button) Dview.findViewById(R.id.post_upload);
                 Button Cancel = (Button) Dview.findViewById(R.id.post_cancel);
                 AlertDialog alertdialog = builder.create();
 
                 Cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         alertdialog.cancel();
-                        String EditTextValue = edittext.getText().toString();
+                    }
+                });
+                Upload.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        uploadPost();
                     }
                 });
                 alertdialog.show();
@@ -321,7 +327,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                         mSaveImageUri = Uri.fromFile(new File(imagePath));
                         mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
                     }
-
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         hideLoading();
@@ -338,6 +343,74 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
     @SuppressLint("MissingPermission")
     private void uploadPost(){
+
+        if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            File file = new File(Environment.getExternalStorageDirectory()
+                    + File.separator + ""
+                    + System.currentTimeMillis() + ".png");
+            try {
+                file.createNewFile();
+
+                SaveSettings saveSettings = new SaveSettings.Builder()
+                        .setClearViewsEnabled(true)
+                        .setTransparencyEnabled(true)
+                        .build();
+
+                mPhotoEditor.saveAsFile(file.getAbsolutePath(), saveSettings, new PhotoEditor.OnSaveListener() {
+                    @Override
+                    public void onSuccess(@NonNull String imagePath) {
+                        hideLoading();
+                        showSnackbar("Image Saved Successfully");
+                        mSaveImageUri = Uri.fromFile(new File(imagePath));
+                        mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
+                        img=mPhotoEditorView.getSource();
+
+                        if (edittext.getText() == null || edittext.getText().toString().isEmpty()) {
+                            Snackbar.make(getCurrentFocus(), R.string.insert_title, Snackbar.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        // Create a storage reference from our app
+                        StorageReference storageRef = storage.getReference("posts");
+                        // Create a reference to "mountains.jpg"
+                        long id = new Date().getTime();
+                        String name = id + ".jpg";
+                        StorageReference imageRef = storageRef.child(name);
+
+                        img.setDrawingCacheEnabled(true);
+                        img.buildDrawingCache();
+                        Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] data = baos.toByteArray();
+
+                        showLoading("Upload...");
+                        UploadTask uploadTask = imageRef.putBytes(data);
+                        uploadTask.addOnFailureListener(exception -> Snackbar.make(getCurrentFocus(), R.string.failed_to_upload, Snackbar.LENGTH_SHORT).show())
+                                .addOnSuccessListener(taskSnapshot -> {
+                                    taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
+                                        Data.uploadPost(edittext.getText().toString().trim(), id, uri.toString());
+                                        //mPhotoEditorView.getSource().setImageBitmap(null);
+                                        edittext.setText("");
+                                        Snackbar.make(getCurrentFocus(), R.string.success_upload, Snackbar.LENGTH_SHORT).show();
+                                        Intent intent=new Intent(getApplicationContext(),MainActivity.class);
+                                        startActivity(intent);
+                                    });
+                                });
+                    }
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        hideLoading();
+                        showSnackbar("Failed to save Image");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                hideLoading();
+                showSnackbar(e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -398,6 +471,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     public void isPermissionGranted(boolean isGranted, String permission) {
         if (isGranted) {
             saveImage();
+            uploadPost();
         }
     }
 

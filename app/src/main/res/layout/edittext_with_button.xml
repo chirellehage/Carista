@@ -36,6 +36,7 @@
                     android:id="@+id/post_upload"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:backgroundTint="@color/purple_500"
                     android:layout_gravity="center"
                     android:text="@string/upload" />
 
@@ -43,6 +44,7 @@
                     android:id="@+id/post_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    app:backgroundTint="@color/purple_500"
                     android:layout_gravity="center"
                     android:text="Cancel" />
             </LinearLayout>
