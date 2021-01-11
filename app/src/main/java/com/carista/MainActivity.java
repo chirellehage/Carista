@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        AppDatabase.terminate();
+//        AppDatabase.terminate();
     }
 
     public void switchTheme(boolean isDark) {
