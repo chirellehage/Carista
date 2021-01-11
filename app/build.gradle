@@ -63,6 +63,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage'
     // photo editor
     implementation 'ja.burhanrashid52:photoeditor:1.1.0'
+
+    def room_version = "2.2.6"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -37,6 +37,7 @@ public class UploadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
 
+        Intent intent = getIntent();
         chooseButton = findViewById(R.id.new_post_choose);
         uploadButton = findViewById(R.id.new_post_upload);
         titleEditText = findViewById(R.id.new_post_title);

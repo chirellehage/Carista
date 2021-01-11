@@ -14,7 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.carista.R;
+import com.carista.data.db.AppDatabase;
 import com.carista.data.realtimedb.models.PostModel;
+import com.carista.utils.Device;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,11 +60,19 @@ public class PostFragment extends Fragment {
                 // whenever data at this location is updated.
 
                 adapter.clearData();
+                /*try {
+                    Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
+                    thread.start();
+                    thread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
                     for (DataSnapshot post : user.getChildren()) {
                         String id = post.getKey();
                         PostModel postModel = new PostModel(id, post.getValue());
                         adapter.addPost(postModel);
+                        //AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
                     }
                 }
             }
@@ -72,5 +83,13 @@ public class PostFragment extends Fragment {
                 Log.w("ERROR", "Failed to read value.", error.toException());
             }
         });
+
+        if (!Device.isNetworkAvailable(getContext())) {
+            adapter.clearData();
+            AppDatabase.executeQuery(() -> adapter.addPost(AppDatabase.getInstance().postDao().getAll()));
+            Snackbar.make(getView().findViewById(R.id.list),
+                    R.string.network_unavailable,
+                    Snackbar.LENGTH_SHORT).show();
+        }
     }
 }

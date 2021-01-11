@@ -6,15 +6,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,16 +33,25 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.transition.ChangeBounds;
 import androidx.transition.TransitionManager;
 
+import com.carista.MainActivity;
 import com.carista.R;
 import com.carista.photoeditor.photoeditor.base.BaseActivity;
 import com.carista.photoeditor.photoeditor.filters.FilterListener;
 import com.carista.photoeditor.photoeditor.filters.FilterViewAdapter;
 import com.carista.photoeditor.photoeditor.tools.EditingToolsAdapter;
 import com.carista.photoeditor.photoeditor.tools.ToolType;
+import com.carista.ui.main.UploadActivity;
+import com.carista.utils.Data;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
@@ -140,6 +154,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         ImageView imgSave;
         ImageView imgClose;
         ImageView imgShare;
+        Button imgPOST;
 
         mPhotoEditorView = findViewById(R.id.photoEditorView);
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool);
@@ -168,6 +183,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         imgShare = findViewById(R.id.imgShare);
         imgShare.setOnClickListener(this);
 
+        imgPOST=findViewById(R.id.imgPOST);
+        imgPOST.setOnClickListener(this);
     }
 
     @Override
@@ -237,6 +254,29 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST);
                 break;
+
+            case R.id.imgPOST:
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                LayoutInflater layoutinflater = getLayoutInflater();
+                View Dview = layoutinflater.inflate(R.layout.edittext_with_button,null);
+                builder.setCancelable(false);
+                builder.setView(Dview);
+                EditText edittext = (EditText) Dview.findViewById(R.id.post_title);
+                Button Submit = (Button) Dview.findViewById(R.id.post_upload);
+                Button Cancel = (Button) Dview.findViewById(R.id.post_cancel);
+                AlertDialog alertdialog = builder.create();
+
+                Cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        alertdialog.cancel();
+                        String EditTextValue = edittext.getText().toString();
+                    }
+                });
+                alertdialog.show();
+                break;
         }
     }
 
@@ -294,6 +334,12 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 showSnackbar(e.getMessage());
             }
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void uploadPost(){
+        Intent intent=new Intent(this,UploadActivity.class);
+        startActivity(intent);
     }
 
     @Override
