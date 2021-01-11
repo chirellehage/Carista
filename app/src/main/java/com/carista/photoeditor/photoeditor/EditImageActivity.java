@@ -65,12 +65,11 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private EmojiBSFragment mEmojiBSFragment;
     private StickerBSFragment mStickerBSFragment;
     private TextView mTxtCurrentTool;
-    private Typeface mWonderFont;
     private RecyclerView mRvTools, mRvFilters;
-    private EditingToolsAdapter mEditingToolsAdapter = new EditingToolsAdapter(this);
-    private FilterViewAdapter mFilterViewAdapter = new FilterViewAdapter(this);
+    private final EditingToolsAdapter mEditingToolsAdapter = new EditingToolsAdapter(this);
+    private final FilterViewAdapter mFilterViewAdapter = new FilterViewAdapter(this);
     private ConstraintLayout mRootView;
-    private ConstraintSet mConstraintSet = new ConstraintSet();
+    private final ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
 
     @Nullable
@@ -460,6 +459,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         mConstraintSet.applyTo(mRootView);
     }
 
+    private void preventClosingEditor() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_editor_confirm_message);
+        builder.setNeutralButton(R.string.continue_editing, (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.discard, (dialog, which) -> finish());
+        builder.create().show();
+    }
+
     @Override
     public void onBackPressed() {
         if (mIsFilterVisible) {
@@ -468,7 +475,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         } else if (!mPhotoEditor.isCacheEmpty()) {
             showSaveDialog();
         } else {
-            super.onBackPressed();
+            preventClosingEditor();
         }
     }
 }
