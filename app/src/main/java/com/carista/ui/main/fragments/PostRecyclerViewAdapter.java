@@ -6,21 +6,22 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.carista.R;
 import com.carista.data.realtimedb.models.PostModel;
+import com.carista.utils.Data;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Arrays;
 import java.util.List;
-import com.carista.utils.Data;
-public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder>{
+
+public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder> {
 
     private final List<PostModel> items;
 
@@ -39,13 +40,13 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         notifyDataSetChanged();
     }
 
-    public  void removePost(int position){
+    public void removePost(int position) {
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference("posts");
 
         PostModel m = this.items.get(position);
-        StorageReference imageRef = storageRef.child(m.id+ ".jpg");
+        StorageReference imageRef = storageRef.child(m.id + ".jpg");
 
         imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -79,14 +80,11 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = this.items.get(position);
         holder.mTitleView.setText(this.items.get(position).title);
-        holder.mimgViewRemoveIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = holder.getAdapterPosition();
-                removePost(position);
-            }
+        holder.mimgViewRemoveIcon.setOnClickListener(v -> {
+            int position1 = holder.getAdapterPosition();
+            removePost(position1);
         });
-        Picasso.get().load(this.items.get(position).image).into(holder.mImageView);
+        Picasso.get().load(items.get(position).image).resize(holder.mCardView.getWidth(), 600).centerCrop().into(holder.mImageView);
     }
 
     @Override
@@ -99,6 +97,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         public final TextView mTitleView;
         public final ImageView mImageView;
         public ImageView mimgViewRemoveIcon;
+        public final CardView mCardView;
         public PostModel mItem;
 
         public ViewHolder(View view) {
@@ -106,7 +105,8 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             mView = view;
             mTitleView = view.findViewById(R.id.post_title);
             mImageView = view.findViewById(R.id.post_image);
-            mimgViewRemoveIcon = (ImageView) view.findViewById(R.id.crossButton);
+            mimgViewRemoveIcon = view.findViewById(R.id.crossButton);
+            mCardView = view.findViewById(R.id.post_card);
         }
     }
 
@@ -114,6 +114,4 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         this.items.clear();
         notifyDataSetChanged();
     }
-
-
 }

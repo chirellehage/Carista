@@ -86,7 +86,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
         handleIntentImage(mPhotoEditorView.getSource());
 
-        mWonderFont = Typeface.createFromAsset(getAssets(), "beyond_wonderland.ttf");
+        //mWonderFont = Typeface.createFromAsset(getAssets(), "beyond_wonderland.ttf");
 
         mPropertiesBSFragment = new PropertiesBSFragment();
         mEmojiBSFragment = new EmojiBSFragment();
