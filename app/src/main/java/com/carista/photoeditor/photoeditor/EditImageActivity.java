@@ -47,6 +47,8 @@ import ja.burhanrashid52.photoeditor.SaveSettings;
 import ja.burhanrashid52.photoeditor.TextStyleBuilder;
 import ja.burhanrashid52.photoeditor.ViewType;
 
+import static android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
         PropertiesBSFragment.Properties,
@@ -232,10 +234,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 break;
 
             case R.id.imgGallery:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST);
+                Intent pickGalleryImageIntent = new Intent(Intent.ACTION_PICK, EXTERNAL_CONTENT_URI);
+                pickGalleryImageIntent.setType("image/*");
+                Intent chooserIntent = Intent.createChooser(pickGalleryImageIntent, "Choose one...");
+                startActivityForResult(chooserIntent, PICK_REQUEST);
                 break;
         }
     }
