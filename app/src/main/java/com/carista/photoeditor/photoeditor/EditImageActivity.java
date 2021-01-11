@@ -47,6 +47,8 @@ import ja.burhanrashid52.photoeditor.SaveSettings;
 import ja.burhanrashid52.photoeditor.TextStyleBuilder;
 import ja.burhanrashid52.photoeditor.ViewType;
 
+import static android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
         PropertiesBSFragment.Properties,
@@ -63,12 +65,11 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private EmojiBSFragment mEmojiBSFragment;
     private StickerBSFragment mStickerBSFragment;
     private TextView mTxtCurrentTool;
-    private Typeface mWonderFont;
     private RecyclerView mRvTools, mRvFilters;
-    private EditingToolsAdapter mEditingToolsAdapter = new EditingToolsAdapter(this);
-    private FilterViewAdapter mFilterViewAdapter = new FilterViewAdapter(this);
+    private final EditingToolsAdapter mEditingToolsAdapter = new EditingToolsAdapter(this);
+    private final FilterViewAdapter mFilterViewAdapter = new FilterViewAdapter(this);
     private ConstraintLayout mRootView;
-    private ConstraintSet mConstraintSet = new ConstraintSet();
+    private final ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
 
     @Nullable
@@ -86,7 +87,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
         handleIntentImage(mPhotoEditorView.getSource());
 
-        mWonderFont = Typeface.createFromAsset(getAssets(), "beyond_wonderland.ttf");
+        //mWonderFont = Typeface.createFromAsset(getAssets(), "beyond_wonderland.ttf");
 
         mPropertiesBSFragment = new PropertiesBSFragment();
         mEmojiBSFragment = new EmojiBSFragment();
@@ -232,10 +233,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 break;
 
             case R.id.imgGallery:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST);
+                Intent pickGalleryImageIntent = new Intent(Intent.ACTION_PICK, EXTERNAL_CONTENT_URI);
+                pickGalleryImageIntent.setType("image/*");
+                Intent chooserIntent = Intent.createChooser(pickGalleryImageIntent, "Choose one...");
+                startActivityForResult(chooserIntent, PICK_REQUEST);
                 break;
         }
     }
@@ -458,6 +459,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         mConstraintSet.applyTo(mRootView);
     }
 
+    private void preventClosingEditor() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_editor_confirm_message);
+        builder.setNeutralButton(R.string.continue_editing, (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.discard, (dialog, which) -> finish());
+        builder.create().show();
+    }
+
     @Override
     public void onBackPressed() {
         if (mIsFilterVisible) {
@@ -466,7 +475,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         } else if (!mPhotoEditor.isCacheEmpty()) {
             showSaveDialog();
         } else {
-            super.onBackPressed();
+            preventClosingEditor();
         }
     }
 }

@@ -3,7 +3,6 @@ package com.carista.photoeditor.photoeditor.base;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -40,7 +39,6 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void makeFullScreen() {
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 

@@ -14,12 +14,15 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="Theme.Carista.dark" parent="Theme.AppCompat.NoActionBar" />
+
     <style name="Theme.Carista.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.Carista.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
 
     <style name="Theme.Carista.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

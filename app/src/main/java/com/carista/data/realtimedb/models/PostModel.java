@@ -1,13 +1,25 @@
 package com.carista.data.realtimedb.models;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.firebase.database.PropertyName;
 
 import java.util.HashMap;
 
+@Entity
 public class PostModel {
-    public String id;
+    @PrimaryKey
+    @NonNull
+    public String id = "";
+
+    @ColumnInfo(name = "title")
     @PropertyName("title")
     public String title;
+
+    @ColumnInfo(name = "image")
     @PropertyName("image")
     public String image;
 
