@@ -8,28 +8,25 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.fragment.app.Fragment;
-import de.hdodenhof.circleimageview.CircleImageView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 
 import com.carista.MainActivity;
 import com.carista.R;
 import com.carista.utils.Data;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthProvider;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
@@ -44,6 +41,9 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
+
 public class UserFragment extends Fragment {
 
     private static final int RESULT_LOAD_IMAGE = 100;
@@ -51,8 +51,12 @@ public class UserFragment extends Fragment {
     private TextView userNickname;
     private EditText usernameEdit;
     private CircleImageView userAvatar;
-    private Switch darkThemeSwitch;
+    private SwitchCompat darkThemeSwitch;
     private Intent chooser;
+    private Button switchButton;
+
+    private static final String PREFS_NAME = "prefs";
+    private static final String PREF_DARK_THEME = "dark_theme";
 
     public UserFragment() {
         // Required empty public constructor
@@ -76,56 +80,54 @@ public class UserFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         logoutButton = view.findViewById(R.id.btn_logout);
-        userNickname=view.findViewById(R.id.user_nickname);
-        userAvatar=view.findViewById(R.id.user_avatar);
-        usernameEdit=view.findViewById(R.id.username_change_edit);
-        usernameChangeButton=view.findViewById(R.id.username_change_btn);
-        darkThemeSwitch=view.findViewById(R.id.dark_theme_switch);
+        userNickname = view.findViewById(R.id.user_nickname);
+        userAvatar = view.findViewById(R.id.user_avatar);
+        usernameEdit = view.findViewById(R.id.username_change_edit);
+        usernameChangeButton = view.findViewById(R.id.username_change_btn);
+        darkThemeSwitch = view.findViewById(R.id.dark_theme_switch);
 
-        SharedPreferences sharedPreferences=getActivity().getSharedPreferences(getString(R.string.dark_theme_pref),Context.MODE_PRIVATE);
-        int isDarkTheme = sharedPreferences.getInt(getString(R.string.dark_theme_enabled),1);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.dark_theme_pref), Context.MODE_PRIVATE);
+        int isDarkTheme = sharedPreferences.getInt(getString(R.string.dark_theme_enabled), 1);
 
-        if(isDarkTheme==1)
+        if (isDarkTheme == 1)
             darkThemeSwitch.setChecked(true);
         else
             darkThemeSwitch.setChecked(false);
 
-        SharedPreferences.Editor editor=sharedPreferences.edit();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
         darkThemeSwitch.setOnClickListener(view1 -> {
-            if(darkThemeSwitch.isChecked()){
-                editor.putInt(getString(R.string.dark_theme_enabled),1);
+            if (darkThemeSwitch.isChecked()) {
+                editor.putInt(getString(R.string.dark_theme_enabled), 1);
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            }
-            else{
-                editor.putInt(getString(R.string.dark_theme_enabled),0);
+            } else {
+                editor.putInt(getString(R.string.dark_theme_enabled), 0);
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
             editor.apply();
         });
 
-        UserInfo userInfo= FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0);
+        UserInfo userInfo = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userRef = mDatabase.child("/users/"+FirebaseAuth.getInstance().getCurrentUser().getUid());
+        DatabaseReference userRef = mDatabase.child("/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                DataSnapshot avatar= dataSnapshot.child("avatar");
-                DataSnapshot nickname=dataSnapshot.child("nickname");
+                DataSnapshot avatar = dataSnapshot.child("avatar");
+                DataSnapshot nickname = dataSnapshot.child("nickname");
 
-                if(nickname.getValue()==null)
-                    if(userInfo.getProviderId().equals("phone")){
-                        userNickname.setText("Welcome, "+user.getPhoneNumber());
-                    }
-                    else{
-                        userNickname.setText("Welcome, "+user.getEmail());
+                if (nickname.getValue() == null)
+                    if (userInfo.getProviderId().equals("phone")) {
+                        userNickname.setText("Welcome, " + user.getPhoneNumber());
+                    } else {
+                        userNickname.setText("Welcome, " + user.getEmail());
                     }
                 else
-                    userNickname.setText("Welcome, "+nickname.getValue());
+                    userNickname.setText("Welcome, " + nickname.getValue());
 
-                if(avatar.getValue()!=null)
+                if (avatar.getValue() != null)
                     Picasso.get().load(avatar.getValue().toString()).into(userAvatar);
             }
 
@@ -139,7 +141,6 @@ public class UserFragment extends Fragment {
         initChooser();
 
 
-
         userAvatar.setOnClickListener(view1 -> {
             startActivityForResult(chooser, RESULT_LOAD_IMAGE);
         });
@@ -150,17 +151,16 @@ public class UserFragment extends Fragment {
         });
 
         usernameChangeButton.setOnClickListener(view1 -> {
-            String newNickname=usernameEdit.getText().toString();
-            newNickname=newNickname.trim();
-            if(newNickname==null || newNickname.isEmpty())
+            String newNickname = usernameEdit.getText().toString();
+            newNickname = newNickname.trim();
+            if (newNickname == null || newNickname.isEmpty())
                 return;
             usernameEdit.setText("");
             Data.uploadNickname(newNickname);
-            Snackbar.make(getActivity().getCurrentFocus(), "Username changed!",Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(getActivity().getCurrentFocus(), "Username changed!", Snackbar.LENGTH_SHORT).show();
             usernameEdit.setVisibility(View.GONE);
             usernameChangeButton.setVisibility(View.GONE);
         });
-
 
 
         logoutButton.setOnClickListener(v -> {
@@ -168,6 +168,32 @@ public class UserFragment extends Fragment {
             startActivity(new Intent(getContext(), MainActivity.class));
             getActivity().finish();
         });
+
+        switchButton = view.findViewById(R.id.btn_theme);
+
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
+                SharedPreferences.Editor editor = preferences.edit();
+                if (useDarkTheme) {
+                    editor.putBoolean(PREF_DARK_THEME, false);
+                    editor.apply();
+//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    ((MainActivity) getActivity()).switchTheme(false);
+                } else {
+                    editor.putBoolean(PREF_DARK_THEME, true);
+                    editor.apply();
+                    ((MainActivity) getActivity()).switchTheme(true);
+//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
+
+
+            }
+        });
+
+
     }
 
     private void initChooser() {
@@ -196,7 +222,7 @@ public class UserFragment extends Fragment {
             userAvatar.setImageBitmap(bitmap);
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageRef = storage.getReference("avatars");
-            String imageName=FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
+            String imageName = FirebaseAuth.getInstance().getCurrentUser().getUid().toString();
             StorageReference imageRef = storageRef.child(imageName);
 
             userAvatar.setDrawingCacheEnabled(true);
