@@ -40,7 +40,6 @@ import com.carista.photoeditor.photoeditor.filters.FilterListener;
 import com.carista.photoeditor.photoeditor.filters.FilterViewAdapter;
 import com.carista.photoeditor.photoeditor.tools.EditingToolsAdapter;
 import com.carista.photoeditor.photoeditor.tools.ToolType;
-import com.carista.ui.main.UploadActivity;
 import com.carista.utils.Data;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.snackbar.Snackbar;
@@ -61,6 +60,8 @@ import ja.burhanrashid52.photoeditor.SaveSettings;
 import ja.burhanrashid52.photoeditor.TextStyleBuilder;
 import ja.burhanrashid52.photoeditor.ViewType;
 
+import static android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
         PropertiesBSFragment.Properties,
@@ -77,12 +78,11 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private EmojiBSFragment mEmojiBSFragment;
     private StickerBSFragment mStickerBSFragment;
     private TextView mTxtCurrentTool;
-    private Typeface mWonderFont;
     private RecyclerView mRvTools, mRvFilters;
-    private EditingToolsAdapter mEditingToolsAdapter = new EditingToolsAdapter(this);
-    private FilterViewAdapter mFilterViewAdapter = new FilterViewAdapter(this);
+    private final EditingToolsAdapter mEditingToolsAdapter = new EditingToolsAdapter(this);
+    private final FilterViewAdapter mFilterViewAdapter = new FilterViewAdapter(this);
     private ConstraintLayout mRootView;
-    private ConstraintSet mConstraintSet = new ConstraintSet();
+    private final ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
 
     @Nullable
@@ -249,10 +249,10 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 break;
 
             case R.id.imgGallery:
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_REQUEST);
+                Intent pickGalleryImageIntent = new Intent(Intent.ACTION_PICK, EXTERNAL_CONTENT_URI);
+                pickGalleryImageIntent.setType("image/*");
+                Intent chooserIntent = Intent.createChooser(pickGalleryImageIntent, "Choose one...");
+                startActivityForResult(chooserIntent, PICK_REQUEST);
                 break;
 
             case R.id.imgPOST:
@@ -338,8 +338,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
     @SuppressLint("MissingPermission")
     private void uploadPost(){
-        Intent intent=new Intent(this,UploadActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -504,6 +502,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         mConstraintSet.applyTo(mRootView);
     }
 
+    private void preventClosingEditor() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.exit_editor_confirm_message);
+        builder.setNeutralButton(R.string.continue_editing, (dialog, which) -> dialog.dismiss());
+        builder.setNegativeButton(R.string.discard, (dialog, which) -> finish());
+        builder.create().show();
+    }
+
     @Override
     public void onBackPressed() {
         if (mIsFilterVisible) {
@@ -512,7 +518,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         } else if (!mPhotoEditor.isCacheEmpty()) {
             showSaveDialog();
         } else {
-            super.onBackPressed();
+            preventClosingEditor();
         }
     }
 }

@@ -24,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 public class PostFragment extends Fragment {
 
     private PostRecyclerViewAdapter adapter;
@@ -56,23 +58,21 @@ public class PostFragment extends Fragment {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-
                 adapter.clearData();
-                /*try {
+                try {
                     Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
                     thread.start();
                     thread.join();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }*/
+                }
+
                 for (DataSnapshot user : dataSnapshot.getChildren()) {
                     for (DataSnapshot post : user.getChildren()) {
                         String id = post.getKey();
                         PostModel postModel = new PostModel(id, post.getValue());
                         adapter.addPost(postModel);
-                        //AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+                        AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
                     }
                 }
             }

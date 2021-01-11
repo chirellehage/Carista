@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 
 @Database(entities = {PostModel.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {
+
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
 
     private static AppDatabase appDatabase;
