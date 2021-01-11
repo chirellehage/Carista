@@ -20,7 +20,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-        <TextView
+
+            <ImageView
+                android:id="@+id/crossButton"
+                android:layout_width="41dp"
+                android:layout_height="41dp"
+                android:layout_gravity="right"
+                android:src="@drawable/delete" />
+
+            <TextView
             android:id="@+id/post_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -30,7 +38,7 @@
             app:layout_constraintStart_toStartOf="parent"
             android:textAppearance="?attr/textAppearanceListItem" />
 
-        <ImageView
+            <ImageView
             android:id="@+id/post_image"
             android:src="@drawable/abc_vector_test"
             android:layout_width="match_parent"

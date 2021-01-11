@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "704451049601",
-    "project_id": "carsita-a1336",
-    "storage_bucket": "carsita-a1336.appspot.com"
+    "project_number": "891593280269",
+    "project_id": "carsittp",
+    "storage_bucket": "carsittp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:704451049601:android:6850d2d499f3e11d94b580",
+        "mobilesdk_app_id": "1:891593280269:android:1cf3bf81aeed35797d3e44",
         "android_client_info": {
           "package_name": "com.carista"
         }
       },
       "oauth_client": [
         {
-          "client_id": "704451049601-hgnjqejudc4cqbpc200vq0grspj458bi.apps.googleusercontent.com",
+          "client_id": "891593280269-lrr00pstd7nbe2q2b4n4rqmsphei9shb.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.carista",
-            "certificate_hash": "a4c769b326c5cea5ca2a0fe46908cc88cba34ebd"
+            "certificate_hash": "1de4e16870d0ea613fb94db1c86f402594ac725f"
           }
         },
         {
-          "client_id": "704451049601-les224k67tvpj71it0h6jjo9qgasnfs3.apps.googleusercontent.com",
+          "client_id": "891593280269-87a3n1i77fi46ihl3krtn79jbq7qtkrg.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAaGoa98veQoLWDk2XVv2YJfEyiwKSx0lY"
+          "current_key": "AIzaSyDIXJgPvKBiXmx8zNpC64m4zfW_HaIhtPg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "704451049601-les224k67tvpj71it0h6jjo9qgasnfs3.apps.googleusercontent.com",
+              "client_id": "891593280269-87a3n1i77fi46ihl3krtn79jbq7qtkrg.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -19,5 +19,7 @@
     <color name="yellow_green_color_picker">#C5E17A</color>
     <color name="tool_bg">#151414</color>
     <color name="semi_black_transparent">#99000000</color>
+    <color name="tab_background_selected">#9400D3</color>
+    <color name="tab_background_unselected">#ff6200ee</color>
 
 </resources>

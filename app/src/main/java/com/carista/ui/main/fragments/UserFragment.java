@@ -1,10 +1,14 @@
 package com.carista.ui.main.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -23,7 +27,10 @@ import com.google.firebase.auth.FirebaseAuth;
 public class UserFragment extends Fragment {
 
     private Button logoutButton;
+    private Button switchButton;
 
+    private static final String PREFS_NAME = "prefs";
+    private static final String PREF_DARK_THEME = "dark_theme";
     public UserFragment() {
         // Required empty public constructor
     }
@@ -51,5 +58,31 @@ public class UserFragment extends Fragment {
             startActivity(new Intent(getContext(), MainActivity.class));
             getActivity().finish();
         });
+
+        switchButton = view.findViewById(R.id.btn_theme);
+
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME,  Context.MODE_PRIVATE);
+                boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
+                SharedPreferences.Editor editor = preferences.edit();
+                if(useDarkTheme){
+                    editor.putBoolean(PREF_DARK_THEME, false);
+                    editor.apply();
+//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    ((MainActivity)getActivity()).switchTheme(false);
+                }else {
+                    editor.putBoolean(PREF_DARK_THEME, true);
+                    editor.apply();
+                    ((MainActivity)getActivity()).switchTheme(true);
+//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
+
+
+            }
+        });
+
+
     }
 }
