@@ -45,4 +45,9 @@
     <string name="network_unavailable">Network unavailable, loading from cache</string>
     <string name="dark_theme_enabled">DarkTheme</string>
     <string name="dark_theme_pref">DarkThemePref</string>
+    <string name="change_nickname">Tap on the welcome message to change your nickname</string>
+    <string name="username">Username</string>
+    <string name="change">Change</string>
+    <string name="new_nickname">New Nickname</string>
+    <string name="dark_theme">Dark Theme</string>
 </resources>
