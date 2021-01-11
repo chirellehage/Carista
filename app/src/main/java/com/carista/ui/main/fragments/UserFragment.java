@@ -18,10 +18,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
+import com.carista.App;
 import com.carista.MainActivity;
 import com.carista.R;
 import com.carista.utils.Data;
@@ -53,10 +53,6 @@ public class UserFragment extends Fragment {
     private CircleImageView userAvatar;
     private SwitchCompat darkThemeSwitch;
     private Intent chooser;
-    private Button switchButton;
-
-    private static final String PREFS_NAME = "prefs";
-    private static final String PREF_DARK_THEME = "dark_theme";
 
     public UserFragment() {
         // Required empty public constructor
@@ -86,25 +82,21 @@ public class UserFragment extends Fragment {
         usernameChangeButton = view.findViewById(R.id.username_change_btn);
         darkThemeSwitch = view.findViewById(R.id.dark_theme_switch);
 
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(getString(R.string.dark_theme_pref), Context.MODE_PRIVATE);
-        int isDarkTheme = sharedPreferences.getInt(getString(R.string.dark_theme_enabled), 1);
-
-        if (isDarkTheme == 1)
-            darkThemeSwitch.setChecked(true);
-        else
-            darkThemeSwitch.setChecked(false);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(App.PREF_DARK_THEME, Context.MODE_PRIVATE);
+        darkThemeSwitch.setChecked(sharedPreferences.getBoolean(App.PREF_DARK_THEME, false));
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
         darkThemeSwitch.setOnClickListener(view1 -> {
             if (darkThemeSwitch.isChecked()) {
-                editor.putInt(getString(R.string.dark_theme_enabled), 1);
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                editor.putBoolean(App.PREF_DARK_THEME, true);
+                editor.apply();
+                ((MainActivity) getActivity()).switchTheme(true);
             } else {
-                editor.putInt(getString(R.string.dark_theme_enabled), 0);
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                editor.putBoolean(App.PREF_DARK_THEME, false);
+                editor.apply();
+                ((MainActivity) getActivity()).switchTheme(false);
             }
-            editor.apply();
         });
 
         UserInfo userInfo = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0);
@@ -168,31 +160,6 @@ public class UserFragment extends Fragment {
             startActivity(new Intent(getContext(), MainActivity.class));
             getActivity().finish();
         });
-
-        switchButton = view.findViewById(R.id.btn_theme);
-
-        switchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences preferences = getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                boolean useDarkTheme = preferences.getBoolean(PREF_DARK_THEME, true);
-                SharedPreferences.Editor editor = preferences.edit();
-                if (useDarkTheme) {
-                    editor.putBoolean(PREF_DARK_THEME, false);
-                    editor.apply();
-//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    ((MainActivity) getActivity()).switchTheme(false);
-                } else {
-                    editor.putBoolean(PREF_DARK_THEME, true);
-                    editor.apply();
-                    ((MainActivity) getActivity()).switchTheme(true);
-//                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                }
-
-
-            }
-        });
-
 
     }
 

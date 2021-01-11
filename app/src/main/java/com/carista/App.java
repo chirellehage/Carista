@@ -4,21 +4,24 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.appcompat.app.AppCompatDelegate;
+
 import com.carista.data.db.AppDatabase;
 
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.preference.PreferenceManager;
-
 public class App extends Application {
+
+    public static final String PREF_DARK_THEME = "dark_theme";
 
     @Override
     public void onCreate() {
         super.onCreate();
         AppDatabase.initialize(getApplicationContext());
 
-        SharedPreferences sharedPreferences = getSharedPreferences(getString(R.string.dark_theme_pref), Context.MODE_PRIVATE);
-        int isDarkTheme=sharedPreferences.getInt(getString(R.string.dark_theme_enabled),1);
-        if(isDarkTheme==1)
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(PREF_DARK_THEME, Context.MODE_PRIVATE);
+
+        boolean isDarkTheme = sharedPreferences.getBoolean(PREF_DARK_THEME, false);
+
+        if (isDarkTheme)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
