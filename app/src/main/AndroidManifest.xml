@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Carista">
         <activity android:name=".ui.main.UploadActivity"></activity>
-        <activity android:name=".photoeditor.photoeditor.EditImageActivity"></activity>
+        <activity android:name=".photoeditor.photoeditor.EditImageActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
