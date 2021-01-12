@@ -1,6 +1,8 @@
 package com.carista.utils;
 
 import android.util.Log;
+import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -33,6 +35,112 @@ public class Data {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference user = mDatabase.child("/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/nickname");
         user.setValue(nickname);
+    }
+
+    public static void addLike(String postId){
+        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
+        DatabaseReference posts=databaseReference.child("/posts");
+        posts.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot userPosts: snapshot.getChildren()){
+                    for(DataSnapshot postIds: userPosts.getChildren()){
+                        if(postIds.getKey().equals(postId)){
+                            DatabaseReference postLikes=posts.child(userPosts.getKey().toString()).child(postId);
+                            postLikes.child("likes").push().setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public static void getLikesCount(String postId, TextView view){
+        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
+        DatabaseReference posts=databaseReference.child("/posts");
+        posts.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot userPosts: snapshot.getChildren()){
+                    for(DataSnapshot postIds: userPosts.getChildren()){
+                        if(postIds.getKey().equals(postId)){
+                            long count = postIds.child("likes").getChildrenCount();
+                            if(count==1)
+                                view.setText(count+" like");
+                            else
+                                view.setText(count+" likes");
+                            return;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public static void isLikedByUser(String postId, CheckBox view, TextView view1){
+        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
+        DatabaseReference posts=databaseReference.child("/posts");
+        posts.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot userPosts: snapshot.getChildren()){
+                    for(DataSnapshot postIds: userPosts.getChildren()){
+                        if(postIds.getKey().equals(postId)){
+                            for(DataSnapshot likes: postIds.child("likes").getChildren()){
+                                if(likes.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                                    view.setChecked(true);
+                                    view1.setText(view1.getText().toString()+" including you");
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+                view.setChecked(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public static void removeLike(String postId){
+        DatabaseReference databaseReference=FirebaseDatabase.getInstance().getReference();
+        DatabaseReference posts=databaseReference.child("/posts");
+        posts.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot userPosts: snapshot.getChildren()){
+                    for(DataSnapshot postIds: userPosts.getChildren()){
+                        if(postIds.getKey().equals(postId)){
+                            for(DataSnapshot likes: postIds.child("likes").getChildren()){
+                                if(likes.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                                    likes.getRef().setValue(null);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     public static void removePost(String id) {

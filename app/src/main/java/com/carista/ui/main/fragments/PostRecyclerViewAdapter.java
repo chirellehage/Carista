@@ -3,6 +3,7 @@ package com.carista.ui.main.fragments;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -57,8 +58,6 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         this.items.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, items.size());
-
-
     }
 
     @Override
@@ -80,9 +79,22 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = this.items.get(position);
         holder.mTitleView.setText(this.items.get(position).title);
+        Data.getLikesCount(this.items.get(position).id, holder.mLikeCounterView);
+        Data.isLikedByUser(this.items.get(position).id, holder.mLikeCheckbox, holder.mLikeCounterView);
+
         holder.mimgViewRemoveIcon.setOnClickListener(v -> {
             int position1 = holder.getAdapterPosition();
             removePost(position1);
+        });
+
+        holder.mLikeCheckbox.setOnClickListener(view -> {
+            int likePosition=holder.getAdapterPosition();
+            if(holder.mLikeCheckbox.isChecked()){
+                Data.addLike(this.items.get(likePosition).id);
+            }
+            else{
+                Data.removeLike(this.items.get(likePosition).id);
+            }
         });
         Picasso.get().load(items.get(position).image).resize(holder.mCardView.getWidth(), 600).centerCrop().into(holder.mImageView);
     }
@@ -99,6 +111,8 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         public ImageView mimgViewRemoveIcon;
         public final CardView mCardView;
         public PostModel mItem;
+        public TextView mLikeCounterView;
+        public CheckBox mLikeCheckbox;
 
         public ViewHolder(View view) {
             super(view);
@@ -107,6 +121,8 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             mImageView = view.findViewById(R.id.post_image);
             mimgViewRemoveIcon = view.findViewById(R.id.crossButton);
             mCardView = view.findViewById(R.id.post_card);
+            mLikeCheckbox=view.findViewById(R.id.like_checkbox);
+            mLikeCounterView=view.findViewById(R.id.likes_counter);
         }
     }
 
