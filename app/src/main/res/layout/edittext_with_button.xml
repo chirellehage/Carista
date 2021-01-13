@@ -38,6 +38,7 @@
                     android:layout_height="wrap_content"
                     app:backgroundTint="@color/purple_500"
                     android:layout_gravity="center"
+                    android:textColor="@color/white"
                     android:text="@string/upload" />
 
                 <Button
@@ -46,6 +47,7 @@
                     android:layout_height="wrap_content"
                     app:backgroundTint="@color/purple_500"
                     android:layout_gravity="center"
+                    android:textColor="@color/white"
                     android:text="Cancel" />
             </LinearLayout>
 
