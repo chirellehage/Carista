@@ -53,4 +53,9 @@
     <string name="exit_editor_confirm_message">Do you really want to quit?</string>
     <string name="continue_editing">Continue editing</string>
     <string name="discard">Discard</string>
+
+    <string name="edit_shortcut_short_label">Editor</string>
+    <string name="edit_shortcut_long_label">Editor</string>
+    <string name="user_shortcut_short_label">Me</string>
+    <string name="user_shortcut_long_label">Me</string>
 </resources>
