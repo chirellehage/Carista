@@ -65,8 +65,10 @@ public class MainActivity extends AppCompatActivity {
                             .build(),
                     RC_SIGN_IN);
         }
-    }
 
+        if (getIntent() != null && getIntent().getAction()!= null && getIntent().getAction().equals("com.carista.MainActivity.UserFragment"))
+            viewPager.setCurrentItem(2);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

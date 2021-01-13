@@ -1,0 +1,26 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_edit"
+        android:shortcutId="editor"
+        android:shortcutLongLabel="@string/edit_shortcut_long_label"
+        android:shortcutShortLabel="@string/edit_shortcut_short_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetClass="com.carista.photoeditor.photoeditor.EditImageActivity"
+            android:targetPackage="com.carista" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_user"
+        android:shortcutId="user"
+        android:shortcutLongLabel="@string/user_shortcut_long_label"
+        android:shortcutShortLabel="@string/user_shortcut_short_label">
+        <intent
+            android:action="com.carista.MainActivity.UserFragment"
+            android:targetClass="com.carista.MainActivity"
+            android:targetPackage="com.carista" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

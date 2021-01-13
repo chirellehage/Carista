@@ -2,7 +2,6 @@ package com.carista.photoeditor.photoeditor;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
@@ -478,24 +477,12 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private void showSaveDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(getString(R.string.msg_save_image));
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                saveImage();
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.setNeutralButton("Discard", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
+        builder.setPositiveButton("Save", (dialog, which) -> saveImage());
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.setNeutralButton("Discard", (dialog, which) -> {
+            if (getIntent().getAction() != null)
+                startActivity(new Intent(this, MainActivity.class));
+            finish();
         });
         builder.create().show();
 
@@ -580,7 +567,11 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.exit_editor_confirm_message);
         builder.setNeutralButton(R.string.continue_editing, (dialog, which) -> dialog.dismiss());
-        builder.setNegativeButton(R.string.discard, (dialog, which) -> finish());
+        builder.setNegativeButton(R.string.discard, (dialog, which) -> {
+            if (getIntent().getAction() != null)
+                startActivity(new Intent(this, MainActivity.class));
+            finish();
+        });
         builder.create().show();
     }
 

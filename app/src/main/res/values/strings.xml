@@ -3,6 +3,9 @@
     <string name="tab_text_1">Posts</string>
     <string name="tab_text_2">Upload</string>
     <string name="posts_fragment_title">Posts</string>
+
+    <string translatable="false" name="api_root">http://192.168.1.65:5000/</string>
+
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
     <string name="sync_header">Sync</string>
@@ -52,4 +55,15 @@
     <string name="exit_editor_confirm_message">Do you really want to quit?</string>
     <string name="continue_editing">Continue editing</string>
     <string name="discard">Discard</string>
+
+    <string name="edit_shortcut_short_label">Editor</string>
+    <string name="edit_shortcut_long_label">Editor</string>
+    <string name="user_shortcut_short_label">Me</string>
+    <string name="user_shortcut_long_label">Me</string>
+    <string name="check_for_update">Check for updates</string>
+    <string name="already_on_latest_update">You are already using the latest version of the app!</string>
+    <string name="update">Update</string>
+    <string name="new_update_available">A new update available (%1$s)\nWould you like to install it?</string>
+    <string name="an_error_has_occurred">An error has occurred!</string>
+
 </resources>
