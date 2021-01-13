@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
+import com.carista.api.RetrofitManager;
 import com.carista.data.db.AppDatabase;
 
 public class App extends Application {
@@ -25,5 +26,7 @@ public class App extends Application {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+
+        RetrofitManager.getInstance(getApplicationContext());
     }
 }
