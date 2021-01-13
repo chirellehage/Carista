@@ -1,9 +1,12 @@
 package com.carista.ui.main.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,6 +27,8 @@ import androidx.fragment.app.Fragment;
 import com.carista.App;
 import com.carista.MainActivity;
 import com.carista.R;
+import com.carista.api.RetrofitManager;
+import com.carista.api.models.UpdateResponse;
 import com.carista.utils.Data;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,12 +47,15 @@ import com.squareup.picasso.Picasso;
 import java.io.ByteArrayOutputStream;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class UserFragment extends Fragment {
 
     private static final int RESULT_LOAD_IMAGE = 100;
-    private Button logoutButton, usernameChangeButton;
+    private Button logoutButton, usernameChangeButton, checkForUpdate;
     private TextView userNickname;
     private EditText usernameEdit;
     private CircleImageView userAvatar;
@@ -62,7 +70,6 @@ public class UserFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -81,6 +88,7 @@ public class UserFragment extends Fragment {
         usernameEdit = view.findViewById(R.id.username_change_edit);
         usernameChangeButton = view.findViewById(R.id.username_change_btn);
         darkThemeSwitch = view.findViewById(R.id.dark_theme_switch);
+        checkForUpdate = view.findViewById(R.id.btn_check_update);
 
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(App.PREF_DARK_THEME, Context.MODE_PRIVATE);
         darkThemeSwitch.setChecked(sharedPreferences.getBoolean(App.PREF_DARK_THEME, false));
@@ -161,6 +169,37 @@ public class UserFragment extends Fragment {
             getActivity().finish();
         });
 
+
+        checkForUpdate.setOnClickListener(view1 -> {
+            PackageInfo pInfo = null;
+            try {
+                pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+
+                RetrofitManager.getInstance(getContext()).getUpdateApi().getUpdates(pInfo.versionName).enqueue(new Callback<UpdateResponse>() {
+                    @Override
+                    public void onResponse(Call<UpdateResponse> call, Response<UpdateResponse> response) {
+                        if (response.body() != null) {
+                            if (response.body().isLatestUpdate)
+                                Snackbar.make(getView(), R.string.already_on_latest_update, Snackbar.LENGTH_SHORT).show();
+                            else
+                                new AlertDialog.Builder(getContext())
+                                        .setTitle(R.string.update)
+                                        .setMessage(getString(R.string.new_update_available, response.body().latestVersion))
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> Snackbar.make(getView(), R.string.an_error_has_occurred, Snackbar.LENGTH_SHORT).show())
+                                        .setNegativeButton(android.R.string.cancel, null).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UpdateResponse> call, Throwable t) {
+                        Snackbar.make(getView(), R.string.an_error_has_occurred, Snackbar.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void initChooser() {
