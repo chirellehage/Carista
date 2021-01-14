@@ -4,7 +4,7 @@
     <string name="tab_text_2">Upload</string>
     <string name="posts_fragment_title">Posts</string>
 
-    <string translatable="false" name="api_root">http://192.168.1.65:5000/</string>
+    <string name="api_root" translatable="false">http://192.168.1.65:5000/</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
