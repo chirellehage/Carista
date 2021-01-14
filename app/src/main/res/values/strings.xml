@@ -4,7 +4,7 @@
     <string name="tab_text_2">Upload</string>
     <string name="posts_fragment_title">Posts</string>
 
-    <string translatable="false" name="api_root">http://192.168.1.65:5000/</string>
+    <string name="api_root" translatable="false">http://192.168.1.65:5000/</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
@@ -66,5 +66,8 @@
     <string name="update">Update</string>
     <string name="new_update_available">A new update available (%1$s)\nWould you like to install it?</string>
     <string name="an_error_has_occurred">An error has occurred!</string>
+    <string name="comments_title">Comments</string>
+    <string name="post_comment_here">Add a comment...</string>
+    <string name="comment_posted_success">Comment posted successfully!</string>
 
 </resources>

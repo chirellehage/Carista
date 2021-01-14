@@ -1,5 +1,6 @@
 package com.carista.ui.main.fragments;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.carista.R;
 import com.carista.data.realtimedb.models.PostModel;
+import com.carista.ui.main.CommentsActivity;
 import com.carista.utils.Data;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -25,19 +27,22 @@ import java.util.List;
 public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder> {
 
     private final List<PostModel> items;
-
+    private final List<String> userIds;
 
     public PostRecyclerViewAdapter() {
         this.items = new ArrayList<>();
+        this.userIds =new ArrayList<>();
     }
 
-    public void addPost(PostModel... postModel) {
+    public void addPost(String userId, PostModel... postModel) {
         this.items.addAll(Arrays.asList(postModel));
+        this.userIds.add(userId);
         notifyDataSetChanged();
     }
 
     public void addPost(List<PostModel> postModels) {
         this.items.addAll(postModels);
+        this.userIds.add("Unknown");
         notifyDataSetChanged();
     }
 
@@ -56,6 +61,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             }
         });
         this.items.remove(position);
+        this.userIds.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, items.size());
     }
@@ -78,7 +84,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = this.items.get(position);
-        holder.mTitleView.setText(this.items.get(position).title);
+        Data.setPostNicknameTitle(this.userIds.get(position),this.items.get(position).title,holder.mTitleView);
         Data.getLikesCount(this.items.get(position).id, holder.mLikeCounterView);
         Data.isLikedByUser(this.items.get(position).id, holder.mLikeCheckbox, holder.mLikeCounterView);
 
@@ -96,6 +102,13 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
                 Data.removeLike(this.items.get(likePosition).id);
             }
         });
+
+        holder.mCommentCheckbox.setOnClickListener(view -> {
+            Intent intent=new Intent(view.getContext(), CommentsActivity.class);
+            intent.putExtra("postId",this.items.get(position).id);
+            view.getContext().startActivity(intent);
+        });
+
         Picasso.get().load(items.get(position).image).resize(holder.mCardView.getWidth(), 600).centerCrop().into(holder.mImageView);
     }
 
@@ -112,7 +125,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         public final CardView mCardView;
         public PostModel mItem;
         public TextView mLikeCounterView;
-        public CheckBox mLikeCheckbox;
+        public CheckBox mLikeCheckbox, mCommentCheckbox;
 
         public ViewHolder(View view) {
             super(view);
@@ -123,6 +136,7 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             mCardView = view.findViewById(R.id.post_card);
             mLikeCheckbox=view.findViewById(R.id.like_checkbox);
             mLikeCounterView=view.findViewById(R.id.likes_counter);
+            mCommentCheckbox=view.findViewById(R.id.comment_checkbox);
         }
     }
 

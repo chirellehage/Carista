@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.main.CommentsActivity">
+
+
+    <FrameLayout
+        android:id="@+id/comment_frame"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/post_comment_linear_layout">
+        <fragment
+            android:id="@+id/comments_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:name="com.carista.ui.main.fragments.CommentsFragment"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/post_comment_linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@drawable/comment_post_layout"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/my_comment_user_avatar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_user"
+            app:civ_border_color="@color/purple_200"
+            app:civ_border_width="2dp"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_vertical"/>
+
+        <EditText
+            android:id="@+id/my_comment"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:background="@null"
+            android:hint="@string/post_comment_here"
+            android:layout_gravity="center_vertical"/>
+
+        <CheckBox
+            android:id="@+id/comment_post_button"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:button="@null"
+            android:layout_margin="5dp"
+            android:layout_gravity="center_vertical"
+            android:backgroundTint="@color/purple_200"
+            android:background="@drawable/ic_comment"/>
+
+
+    </LinearLayout>
+
+    
+</androidx.constraintlayout.widget.ConstraintLayout>
