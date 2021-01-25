@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "875967555988",
+    "project_id": "carista-99960",
+    "storage_bucket": "carista-99960.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875967555988:android:7fd4ded0d098734b4b4781",
+        "android_client_info": {
+          "package_name": "com.carista"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "875967555988-7cb45rgjpdf67tbvgdpggrol3ueketdm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.carista",
+            "certificate_hash": "9aeb7aed28474c440cb984c4b7e15b2da063b902"
+          }
+        },
+        {
+          "client_id": "875967555988-r9nlpr8ukmsqqfneo10ofbifrn3jb3ai.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVe2xcLHZJ7ZMpEZML13F9nefd-ft9VDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "875967555988-r9nlpr8ukmsqqfneo10ofbifrn3jb3ai.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
