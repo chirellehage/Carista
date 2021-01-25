@@ -72,7 +72,7 @@ public class PostFragment extends Fragment {
                     for (DataSnapshot post : user.getChildren()) {
                         String id = post.getKey();
                         PostModel postModel = new PostModel(id, post.getValue());
-                        adapter.addPost(postModel);
+                        adapter.addPost(user.getKey(),postModel);
                         AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
                     }
                 }
