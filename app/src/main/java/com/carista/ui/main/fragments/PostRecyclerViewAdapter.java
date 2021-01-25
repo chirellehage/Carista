@@ -34,10 +34,10 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
         this.userIds =new ArrayList<>();
     }
 
-    public void addPost(String userId, PostModel... postModel) {
-        this.items.addAll(Arrays.asList(postModel));
+    public void addPost(String userId, PostModel postModel) {
+        this.items.add(postModel);
+        this.notifyItemChanged(this.items.size());
         this.userIds.add(userId);
-        notifyDataSetChanged();
     }
 
     public void addPost(List<PostModel> postModels) {

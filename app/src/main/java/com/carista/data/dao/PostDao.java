@@ -11,7 +11,7 @@ import java.util.List;
 
 @Dao
 public interface PostDao {
-    @Query("SELECT * FROM PostModel ORDER BY id DESC")
+    @Query("SELECT * FROM PostModel ORDER BY timestamp DESC")
     List<PostModel> getAll();
 
     @Insert

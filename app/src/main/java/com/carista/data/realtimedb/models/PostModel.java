@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey;
 
 import com.google.firebase.database.PropertyName;
 
+import java.util.Date;
 import java.util.HashMap;
 
 @Entity
@@ -23,15 +24,21 @@ public class PostModel {
     @PropertyName("image")
     public String image;
 
+    @ColumnInfo(name = "timestamp")
+    @PropertyName("timestamp")
+    public long timestamp;
+
     public PostModel(String title, String image) {
         this.title = title;
         this.image = image;
+        this.timestamp = new Date().getTime();
     }
 
     public PostModel(String id, Object data) {
-        HashMap<String, String> _data = (HashMap<String, String>) data;
+        HashMap<String, Object> _data = (HashMap<String, Object>) data;
         this.id = id;
-        this.title = _data.get("title");
-        this.image = _data.get("image");
+        this.title = (String) _data.get("title");
+        this.image = (String) _data.get("image");
+        this.timestamp = (long) _data.get("timestamp");
     }
 }

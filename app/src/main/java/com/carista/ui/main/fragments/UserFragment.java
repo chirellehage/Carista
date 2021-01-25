@@ -1,7 +1,6 @@
 package com.carista.ui.main.fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.carista.R;
 import com.carista.utils.Data;
@@ -39,7 +39,6 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 
-import androidx.viewpager2.widget.ViewPager2;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
@@ -71,27 +70,21 @@ public class UserFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =  inflater.inflate(R.layout.fragment_user, container, false);
-        Context context = view.getContext();
+        View view = inflater.inflate(R.layout.fragment_user, container, false);
 
         viewPager = view.findViewById(R.id.view_pager);
         tabLayout = view.findViewById(R.id.tabs);
         viewPager.setAdapter(createCardAdapter());
-        new TabLayoutMediator(tabLayout, viewPager,
-                new TabLayoutMediator.TabConfigurationStrategy() {
-                    @Override public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
-                        tab.setIcon(drawableIds[position]);
-
-                    }
-                }).attach();
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> tab.setIcon(drawableIds[position])).attach();
 
         return view;
 
     }
+
     private UserViewPagerAdapter createCardAdapter() {
-        UserViewPagerAdapter adapter = new UserViewPagerAdapter(this);
-        return adapter;
+        return new UserViewPagerAdapter(this);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
