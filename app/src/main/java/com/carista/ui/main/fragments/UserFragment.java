@@ -1,12 +1,8 @@
 package com.carista.ui.main.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -21,16 +17,13 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
-import com.carista.App;
-import com.carista.MainActivity;
 import com.carista.R;
-import com.carista.api.RetrofitManager;
-import com.carista.api.models.UpdateResponse;
 import com.carista.utils.Data;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -46,21 +39,21 @@ import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 
+import androidx.viewpager2.widget.ViewPager2;
 import de.hdodenhof.circleimageview.CircleImageView;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 public class UserFragment extends Fragment {
 
     private static final int RESULT_LOAD_IMAGE = 100;
-    private Button logoutButton, usernameChangeButton, checkForUpdate;
+    private Button usernameChangeButton;
     private TextView userNickname;
     private EditText usernameEdit;
     private CircleImageView userAvatar;
-    private SwitchCompat darkThemeSwitch;
     private Intent chooser;
+    TabLayout tabLayout;
+    ViewPager2 viewPager;
+    int[] drawableIds = {R.drawable.ic_img_view, R.drawable.ic_heart, R.drawable.ic_settings};
 
     public UserFragment() {
         // Required empty public constructor
@@ -69,49 +62,51 @@ public class UserFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_user, container, false);
-    }
+        View view =  inflater.inflate(R.layout.fragment_user, container, false);
+        Context context = view.getContext();
 
+        viewPager = view.findViewById(R.id.view_pager);
+        tabLayout = view.findViewById(R.id.tabs);
+        viewPager.setAdapter(createCardAdapter());
+        new TabLayoutMediator(tabLayout, viewPager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        tab.setIcon(drawableIds[position]);
+
+                    }
+                }).attach();
+
+        return view;
+
+    }
+    private UserViewPagerAdapter createCardAdapter() {
+        UserViewPagerAdapter adapter = new UserViewPagerAdapter(this);
+        return adapter;
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        logoutButton = view.findViewById(R.id.btn_logout);
         userNickname = view.findViewById(R.id.user_nickname);
         userAvatar = view.findViewById(R.id.user_avatar);
         usernameEdit = view.findViewById(R.id.username_change_edit);
         usernameChangeButton = view.findViewById(R.id.username_change_btn);
-        darkThemeSwitch = view.findViewById(R.id.dark_theme_switch);
-        checkForUpdate = view.findViewById(R.id.btn_check_update);
 
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(App.PREF_DARK_THEME, Context.MODE_PRIVATE);
-        darkThemeSwitch.setChecked(sharedPreferences.getBoolean(App.PREF_DARK_THEME, false));
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-
-        darkThemeSwitch.setOnClickListener(view1 -> {
-            if (darkThemeSwitch.isChecked()) {
-                editor.putBoolean(App.PREF_DARK_THEME, true);
-                editor.apply();
-                ((MainActivity) getActivity()).switchTheme(true);
-            } else {
-                editor.putBoolean(App.PREF_DARK_THEME, false);
-                editor.apply();
-                ((MainActivity) getActivity()).switchTheme(false);
-            }
-        });
 
         UserInfo userInfo = FirebaseAuth.getInstance().getCurrentUser().getProviderData().get(0);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference userRef = mDatabase.child("/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+        DatabaseReference userPostsRef = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -129,6 +124,8 @@ public class UserFragment extends Fragment {
 
                 if (avatar.getValue() != null)
                     Picasso.get().load(avatar.getValue().toString()).into(userAvatar);
+
+
             }
 
             @Override
@@ -137,7 +134,6 @@ public class UserFragment extends Fragment {
                 Log.w("ERROR", "Failed to read value.", error.toException());
             }
         });
-
         initChooser();
 
 
@@ -160,45 +156,6 @@ public class UserFragment extends Fragment {
             Snackbar.make(getActivity().getCurrentFocus(), "Username changed!", Snackbar.LENGTH_SHORT).show();
             usernameEdit.setVisibility(View.GONE);
             usernameChangeButton.setVisibility(View.GONE);
-        });
-
-
-        logoutButton.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(getContext(), MainActivity.class));
-            getActivity().finish();
-        });
-
-
-        checkForUpdate.setOnClickListener(view1 -> {
-            PackageInfo pInfo = null;
-            try {
-                pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
-
-                RetrofitManager.getInstance(getContext()).getUpdateApi().getUpdates(pInfo.versionName).enqueue(new Callback<UpdateResponse>() {
-                    @Override
-                    public void onResponse(Call<UpdateResponse> call, Response<UpdateResponse> response) {
-                        if (response.body() != null) {
-                            if (response.body().isLatestUpdate)
-                                Snackbar.make(getView(), R.string.already_on_latest_update, Snackbar.LENGTH_SHORT).show();
-                            else
-                                new AlertDialog.Builder(getContext())
-                                        .setTitle(R.string.update)
-                                        .setMessage(getString(R.string.new_update_available, response.body().latestVersion))
-                                        .setIcon(android.R.drawable.ic_dialog_alert)
-                                        .setPositiveButton(android.R.string.ok, (dialog, whichButton) -> Snackbar.make(getView(), R.string.an_error_has_occurred, Snackbar.LENGTH_SHORT).show())
-                                        .setNegativeButton(android.R.string.cancel, null).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<UpdateResponse> call, Throwable t) {
-                        Snackbar.make(getView(), R.string.an_error_has_occurred, Snackbar.LENGTH_SHORT).show();
-                    }
-                });
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            }
         });
     }
 
