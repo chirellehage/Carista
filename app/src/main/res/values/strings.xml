@@ -66,5 +66,6 @@
     <string name="update">Update</string>
     <string name="new_update_available">A new update available (%1$s)\nWould you like to install it?</string>
     <string name="an_error_has_occurred">An error has occurred!</string>
+    <string name="login_error">Error logging in!</string>
 
 </resources>

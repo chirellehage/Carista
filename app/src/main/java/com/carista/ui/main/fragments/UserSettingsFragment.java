@@ -14,6 +14,7 @@ import android.widget.Button;
 import com.carista.App;
 import com.carista.MainActivity;
 import com.carista.R;
+import com.carista.SplashScreen;
 import com.carista.api.RetrofitManager;
 import com.carista.api.models.UpdateResponse;
 import com.google.android.material.snackbar.Snackbar;
@@ -70,7 +71,7 @@ public class UserSettingsFragment extends Fragment {
 
         logoutButton.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            startActivity(new Intent(getContext(), MainActivity.class));
+            startActivity(new Intent(getContext(), SplashScreen.class));
             getActivity().finish();
         });
 
