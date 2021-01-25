@@ -4,15 +4,21 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,10 +39,17 @@ import com.carista.photoeditor.photoeditor.filters.FilterListener;
 import com.carista.photoeditor.photoeditor.filters.FilterViewAdapter;
 import com.carista.photoeditor.photoeditor.tools.EditingToolsAdapter;
 import com.carista.photoeditor.photoeditor.tools.ToolType;
+import com.carista.utils.Data;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
@@ -70,6 +83,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private ConstraintLayout mRootView;
     private final ConstraintSet mConstraintSet = new ConstraintSet();
     private boolean mIsFilterVisible;
+    private EditText edittext;
+    private ImageView img;
 
     @Nullable
     @VisibleForTesting
@@ -140,6 +155,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         ImageView imgSave;
         ImageView imgClose;
         ImageView imgShare;
+        Button imgPOST;
 
         mPhotoEditorView = findViewById(R.id.photoEditorView);
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool);
@@ -168,6 +184,8 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         imgShare = findViewById(R.id.imgShare);
         imgShare.setOnClickListener(this);
 
+        imgPOST=findViewById(R.id.imgPOST);
+        imgPOST.setOnClickListener(this);
     }
 
     @Override
@@ -237,6 +255,33 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                 Intent chooserIntent = Intent.createChooser(pickGalleryImageIntent, "Choose one...");
                 startActivityForResult(chooserIntent, PICK_REQUEST);
                 break;
+
+            case R.id.imgPOST:
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                LayoutInflater layoutinflater = getLayoutInflater();
+                View Dview = layoutinflater.inflate(R.layout.edittext_with_button,null);
+                builder.setCancelable(false);
+                builder.setView(Dview);
+                edittext = (EditText) Dview.findViewById(R.id.post_title);
+                Button Upload = (Button) Dview.findViewById(R.id.post_upload);
+                Button Cancel = (Button) Dview.findViewById(R.id.post_cancel);
+                AlertDialog alertdialog = builder.create();
+
+                Cancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        alertdialog.cancel();
+                    }
+                });
+                Upload.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        uploadPost();
+                    }
+                });
+                alertdialog.show();
+                break;
         }
     }
 
@@ -281,7 +326,78 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                         mSaveImageUri = Uri.fromFile(new File(imagePath));
                         mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
                     }
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        hideLoading();
+                        showSnackbar("Failed to save Image");
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+                hideLoading();
+                showSnackbar(e.getMessage());
+            }
+        }
+    }
 
+    @SuppressLint("MissingPermission")
+    private void uploadPost(){
+
+        if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            File file = new File(Environment.getExternalStorageDirectory()
+                    + File.separator + ""
+                    + System.currentTimeMillis() + ".png");
+            try {
+                file.createNewFile();
+
+                SaveSettings saveSettings = new SaveSettings.Builder()
+                        .setClearViewsEnabled(true)
+                        .setTransparencyEnabled(true)
+                        .build();
+
+                mPhotoEditor.saveAsFile(file.getAbsolutePath(), saveSettings, new PhotoEditor.OnSaveListener() {
+                    @Override
+                    public void onSuccess(@NonNull String imagePath) {
+                        hideLoading();
+                        showSnackbar("Image Saved Successfully");
+                        mSaveImageUri = Uri.fromFile(new File(imagePath));
+                        mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
+                        img=mPhotoEditorView.getSource();
+
+                        if (edittext.getText() == null || edittext.getText().toString().isEmpty()) {
+                            Snackbar.make(getCurrentFocus(), R.string.insert_title, Snackbar.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        // Create a storage reference from our app
+                        StorageReference storageRef = storage.getReference("posts");
+                        // Create a reference to "mountains.jpg"
+                        long id = new Date().getTime();
+                        String name = id + ".jpg";
+                        StorageReference imageRef = storageRef.child(name);
+
+                        img.setDrawingCacheEnabled(true);
+                        img.buildDrawingCache();
+                        Bitmap bitmap = ((BitmapDrawable) img.getDrawable()).getBitmap();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte[] data = baos.toByteArray();
+
+                        showLoading("Upload...");
+                        UploadTask uploadTask = imageRef.putBytes(data);
+                        uploadTask.addOnFailureListener(exception -> Snackbar.make(getCurrentFocus(), R.string.failed_to_upload, Snackbar.LENGTH_SHORT).show())
+                                .addOnSuccessListener(taskSnapshot -> {
+                                    taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
+                                        Data.uploadPost(edittext.getText().toString().trim(), id, uri.toString());
+                                        //mPhotoEditorView.getSource().setImageBitmap(null);
+                                        edittext.setText("");
+                                        Snackbar.make(getCurrentFocus(), R.string.success_upload, Snackbar.LENGTH_SHORT).show();
+                                        Intent intent=new Intent(getApplicationContext(),MainActivity.class);
+                                        startActivity(intent);
+                                    });
+                                });
+                    }
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         hideLoading();
@@ -354,6 +470,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     public void isPermissionGranted(boolean isGranted, String permission) {
         if (isGranted) {
             saveImage();
+            uploadPost();
         }
     }
 

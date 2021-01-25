@@ -59,7 +59,6 @@ public class PostFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 adapter.clearData();
-
                 try {
                     Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
                     thread.start();

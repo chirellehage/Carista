@@ -43,7 +43,6 @@
     <string name="label_filter">Filter</string>
     <string name="msg_save_image_to_share">Save to share image</string>
     <string name="msg_share_image">Share image</string>
-
     <string name="success_upload">Post uploaded!</string>
     <string name="network_unavailable">Network unavailable, loading from cache</string>
     <string name="dark_theme_enabled">DarkTheme</string>

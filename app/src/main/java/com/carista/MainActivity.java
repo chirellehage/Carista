@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.viewpager.widget.ViewPager;
 
+import com.carista.data.db.AppDatabase;
 import com.carista.photoeditor.photoeditor.EditImageActivity;
 import com.carista.ui.main.SectionsPagerAdapter;
 import com.firebase.ui.auth.AuthUI;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Intent intent=getIntent();
         setContentView(R.layout.activity_main);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        AppDatabase.terminate();
+        //AppDatabase.terminate();
     }
 
     public void switchTheme(boolean isDark) {
