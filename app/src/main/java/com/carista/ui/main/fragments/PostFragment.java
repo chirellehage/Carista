@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PostFragment extends Fragment {
@@ -59,7 +60,7 @@ public class PostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference("posts");
-        databaseReference.orderByKey().limitToFirst(5).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.orderByKey().limitToLast(5).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 try {
@@ -70,12 +71,21 @@ public class PostFragment extends Fragment {
                     e.printStackTrace();
                 }
 
+                ArrayList<PostModel> postModels=new ArrayList<>();
+                ArrayList<String> postKeys=new ArrayList<>();
+
                 for (DataSnapshot post : dataSnapshot.getChildren()) {
                     String id = post.getKey();
                     PostModel postModel = new PostModel(id, post.getValue());
-                    adapter.addPost(postModel);
-                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
-                    lastLazyItem=id;
+                    postModels.add(postModel);
+                    postKeys.add(id);
+                }
+
+                for(int i=postModels.size()-1;i>=0;i--){
+                    adapter.addPost(postModels.get(i));
+                    final int j=i;
+                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModels.get(j)));
+                    lastLazyItem=postKeys.get(i);
                 }
             }
 
@@ -94,7 +104,7 @@ public class PostFragment extends Fragment {
                     if(lastLazyItem!=null){
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
                         DatabaseReference databaseReference = database.getReference("posts");
-                        databaseReference.orderByKey().startAt(lastLazyItem).limitToFirst(6).addListenerForSingleValueEvent(new ValueEventListener() {
+                        databaseReference.orderByKey().endAt(lastLazyItem).limitToLast(6).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 try {
@@ -105,14 +115,21 @@ public class PostFragment extends Fragment {
                                     e.printStackTrace();
                                 }
 
-                                int dummy=0;
+                                ArrayList<PostModel> postModels=new ArrayList<>();
+                                ArrayList<String> postKeys=new ArrayList<>();
+
                                 for (DataSnapshot post : dataSnapshot.getChildren()) {
-                                    if(dummy==0){dummy++; continue;}
                                     String id = post.getKey();
                                     PostModel postModel = new PostModel(id, post.getValue());
-                                    adapter.addPost(postModel);
-                                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
-                                    lastLazyItem=id;
+                                    postModels.add(postModel);
+                                    postKeys.add(id);
+                                }
+
+                                for(int i=postModels.size()-2;i>=0;i--){
+                                    adapter.addPost(postModels.get(i));
+                                    final int j=i;
+                                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModels.get(j)));
+                                    lastLazyItem=postKeys.get(i);
                                 }
                             }
 
