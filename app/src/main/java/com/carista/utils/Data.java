@@ -24,12 +24,12 @@ import org.w3c.dom.Text;
 
 public class Data {
 
-    public static void uploadPost(String title, long id, String imageURL) {
+    public static void uploadPost(String title, long id, String imageURL, String userId) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        DatabaseReference post = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + id);
+        DatabaseReference post = mDatabase.child("/posts/" + id);
 
-        post.setValue(new PostModel(title, imageURL));
+        post.setValue(new PostModel(title, imageURL, userId));
     }
 
     public static void uploadAvatarLink(String avatarURL) {
@@ -50,12 +50,10 @@ public class Data {
         posts.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
-                        if(postIds.getKey().equals(postId)){
-                            DatabaseReference postLikes=posts.child(userPosts.getKey().toString()).child(postId);
-                            postLikes.child("likes").push().setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                        }
+                for(DataSnapshot postIds: snapshot.getChildren()){
+                    if(postIds.getKey().equals(postId)){
+                        DatabaseReference postLikes=posts.child(postId);
+                        postLikes.child("likes").push().setValue(FirebaseAuth.getInstance().getCurrentUser().getUid());
                     }
                 }
             }
@@ -73,12 +71,10 @@ public class Data {
         posts.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
-                        if(postIds.getKey().equals(postId)){
-                            DatabaseReference postLikes=posts.child(userPosts.getKey().toString()).child(postId);
-                            postLikes.child("comments").push().setValue(commentModel);
-                        }
+                for(DataSnapshot postIds: snapshot.getChildren()){
+                    if(postIds.getKey().equals(postId)){
+                        DatabaseReference postLikes=posts.child(postId);
+                        postLikes.child("comments").push().setValue(commentModel);
                     }
                 }
             }
@@ -96,16 +92,14 @@ public class Data {
         posts.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
-                        if(postIds.getKey().equals(postId)){
-                            long count = postIds.child("likes").getChildrenCount();
-                            if(count==1)
-                                view.setText(count+" like");
-                            else
-                                view.setText(count+" likes");
-                            return;
-                        }
+                for(DataSnapshot postIds: snapshot.getChildren()){
+                    if(postIds.getKey().equals(postId)){
+                        long count = postIds.child("likes").getChildrenCount();
+                        if(count==1)
+                            view.setText(count+" like");
+                        else
+                            view.setText(count+" likes");
+                        return;
                     }
                 }
             }
@@ -176,18 +170,16 @@ public class Data {
         posts.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
-                        if(postIds.getKey().equals(postId)){
-                            for(DataSnapshot likes: postIds.child("likes").getChildren()){
-                                if(likes.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                                    view.setChecked(true);
-                                    int likesNb = Integer.parseInt(view1.getText().toString().split(" ")[0]);
-                                    if(likesNb>1)
-                                        view1.setText("You and "+(likesNb-1)+" others like this");
-                                    else view1.setText("Only you like this");
-                                    return;
-                                }
+                for(DataSnapshot postIds: snapshot.getChildren()){
+                    if(postIds.getKey().equals(postId)){
+                        for(DataSnapshot likes: postIds.child("likes").getChildren()){
+                            if(likes.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                                view.setChecked(true);
+                                int likesNb = Integer.parseInt(view1.getText().toString().split(" ")[0]);
+                                if(likesNb>1)
+                                    view1.setText("You and "+(likesNb-1)+" others like this");
+                                else view1.setText("Only you like this");
+                                return;
                             }
                         }
                     }
@@ -208,14 +200,12 @@ public class Data {
         posts.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
-                        if(postIds.getKey().equals(postId)){
-                            for(DataSnapshot likes: postIds.child("likes").getChildren()){
-                                if(likes.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                                    likes.getRef().setValue(null);
-                                    return;
-                                }
+                for(DataSnapshot postIds: snapshot.getChildren()){
+                    if(postIds.getKey().equals(postId)){
+                        for(DataSnapshot likes: postIds.child("likes").getChildren()){
+                            if(likes.getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                                likes.getRef().setValue(null);
+                                return;
                             }
                         }
                     }
@@ -231,7 +221,7 @@ public class Data {
 
     public static void removePost(String id) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        Query post = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + id);
+        Query post = mDatabase.child("/posts" + id);
 
         post.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

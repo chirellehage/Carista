@@ -22,7 +22,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static void initialize(Context applicationContext) {
         appDatabase = Room.databaseBuilder(applicationContext,
-                AppDatabase.class, "carista.db")
+                AppDatabase.class, "caristaapp.db")
                 .build();
     }
 

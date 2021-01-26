@@ -99,7 +99,6 @@ public class UserFragment extends Fragment {
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         DatabaseReference userRef = mDatabase.child("/users/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
-        DatabaseReference userPostsRef = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

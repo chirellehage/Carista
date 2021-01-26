@@ -29,6 +29,9 @@ import java.util.HashMap;
 public class PostFragment extends Fragment {
 
     private PostRecyclerViewAdapter adapter;
+    private RecyclerView recyclerView;
+    private String lastLazyItem;
+    private String lastLazyKey;
 
     public PostFragment() {
     }
@@ -43,8 +46,9 @@ public class PostFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_item_list, container, false);
         Context context = view.getContext();
-        RecyclerView recyclerView = view.findViewById(R.id.list);
+        recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
         adapter = new PostRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);
         return view;
@@ -55,10 +59,9 @@ public class PostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference("posts");
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference.orderByKey().limitToFirst(5).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                adapter.clearData();
                 try {
                     Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
                     thread.start();
@@ -67,13 +70,12 @@ public class PostFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                for (DataSnapshot user : dataSnapshot.getChildren()) {
-                    for (DataSnapshot post : user.getChildren()) {
-                        String id = post.getKey();
-                        PostModel postModel = new PostModel(id, post.getValue());
-                        adapter.addPost(user.getKey(),postModel);
-                        AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
-                    }
+                for (DataSnapshot post : dataSnapshot.getChildren()) {
+                    String id = post.getKey();
+                    PostModel postModel = new PostModel(id, post.getValue());
+                    adapter.addPost(postModel);
+                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+                    lastLazyItem=id;
                 }
             }
 
@@ -83,6 +85,48 @@ public class PostFragment extends Fragment {
                 Log.w("ERROR", "Failed to read value.", error.toException());
             }
         });
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if(!recyclerView.canScrollVertically(1) && recyclerView.canScrollVertically(-1)){
+                    if(lastLazyItem!=null){
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference databaseReference = database.getReference("posts");
+                        databaseReference.orderByKey().startAt(lastLazyItem).limitToFirst(6).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                try {
+                                    Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
+                                    thread.start();
+                                    thread.join();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                int dummy=0;
+                                for (DataSnapshot post : dataSnapshot.getChildren()) {
+                                    if(dummy==0){dummy++; continue;}
+                                    String id = post.getKey();
+                                    PostModel postModel = new PostModel(id, post.getValue());
+                                    adapter.addPost(postModel);
+                                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+                                    lastLazyItem=id;
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                // Failed to read value
+                                Log.w("ERROR", "Failed to read value.", error.toException());
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
 
         if (!Device.isNetworkAvailable(getContext())) {
             adapter.clearData();

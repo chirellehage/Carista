@@ -70,14 +70,12 @@ public class CommentsFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 adapter.clearData();
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
-                        if(postIds.getKey().equals(postId)){
-                            if(postIds.child("comments")==null)
-                                return;
-                            for(DataSnapshot comment: postIds.child("comments").getChildren()){
-                                adapter.addComment(new CommentModel(comment.getValue()));
-                            }
+                for(DataSnapshot postIds: snapshot.getChildren()){
+                    if(postIds.getKey().equals(postId)){
+                        if(postIds.child("comments")==null)
+                            return;
+                        for(DataSnapshot comment: postIds.child("comments").getChildren()){
+                            adapter.addComment(new CommentModel(comment.getValue()));
                         }
                     }
                 }

@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class PostModel {
     @PrimaryKey
     @NonNull
-    public String id = "";
+    public String id;
 
     @ColumnInfo(name = "title")
     @PropertyName("title")
@@ -28,10 +28,15 @@ public class PostModel {
     @PropertyName("timestamp")
     public long timestamp;
 
-    public PostModel(String title, String image) {
+    @ColumnInfo(name="userId")
+    @PropertyName("userId")
+    public String userId;
+
+    public PostModel(String title, String image, String userId) {
         this.title = title;
         this.image = image;
         this.timestamp = new Date().getTime();
+        this.userId=userId;
     }
 
     public PostModel(String id, Object data) {
@@ -40,5 +45,6 @@ public class PostModel {
         this.title = (String) _data.get("title");
         this.image = (String) _data.get("image");
         this.timestamp = (long) _data.get("timestamp");
+        this.userId= (String) _data.get("userId");
     }
 }
