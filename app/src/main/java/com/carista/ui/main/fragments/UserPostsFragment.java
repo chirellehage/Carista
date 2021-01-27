@@ -52,7 +52,7 @@ public class UserPostsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userPostsRef = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+        DatabaseReference userPostsRef = mDatabase.child("posts");
 
         userPostsRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -68,9 +68,11 @@ public class UserPostsFragment extends Fragment {
                 }*/
 
                 for (DataSnapshot post : dataSnapshot.getChildren()) {
-                    String id = post.getKey();
-                    PostModel postModel = new PostModel(id, post.getValue());
-                    adapter.addPost(postModel);
+                    if(post.child("userId").getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                        String id = post.getKey();
+                        PostModel postModel = new PostModel(id, post.getValue());
+                        adapter.addPost(postModel);
+                    }
                     //AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
                 }
             }

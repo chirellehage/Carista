@@ -16,6 +16,7 @@ import com.carista.data.realtimedb.models.PostModel;
 import com.carista.ui.main.CommentsActivity;
 import com.carista.utils.Data;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
@@ -27,22 +28,18 @@ import java.util.List;
 public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerViewAdapter.ViewHolder> {
 
     private final List<PostModel> items;
-    private final List<String> userIds;
 
     public PostRecyclerViewAdapter() {
         this.items = new ArrayList<>();
-        this.userIds =new ArrayList<>();
     }
 
-    public void addPost(String userId, PostModel postModel) {
+    public void addPost(PostModel postModel) {
         this.items.add(postModel);
         this.notifyItemChanged(this.items.size());
-        this.userIds.add(userId);
     }
 
     public void addPost(List<PostModel> postModels) {
         this.items.addAll(postModels);
-        this.userIds.add("Unknown");
         notifyDataSetChanged();
     }
 
@@ -61,7 +58,6 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
             }
         });
         this.items.remove(position);
-        this.userIds.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, items.size());
     }
@@ -84,13 +80,14 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = this.items.get(position);
-        Data.setPostNicknameTitle(this.userIds.get(position),this.items.get(position).title,holder.mTitleView);
+        Data.setPostNicknameTitle(this.items.get(position).userId,this.items.get(position).title,holder.mTitleView);
         Data.getLikesCount(this.items.get(position).id, holder.mLikeCounterView);
         Data.isLikedByUser(this.items.get(position).id, holder.mLikeCheckbox, holder.mLikeCounterView);
 
         holder.mimgViewRemoveIcon.setOnClickListener(v -> {
             int position1 = holder.getAdapterPosition();
-            removePost(position1);
+            if(this.items.get(position1).userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                removePost(position1);
         });
 
         holder.mLikeCheckbox.setOnClickListener(view -> {
