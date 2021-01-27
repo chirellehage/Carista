@@ -25,15 +25,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 public class PostFragment extends Fragment {
 
     private PostRecyclerViewAdapter adapter;
-    private  RecyclerView recyclerView;
-    private long oldesttimestamp;
+    private RecyclerView recyclerView;
+    private String lastLazyItem;
+    private String lastLazyKey;
+
     public PostFragment() {
     }
 
@@ -61,81 +63,93 @@ public class PostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference("posts");
-        databaseReference.orderByChild("timestamp").limitToFirst(2).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                adapter.clearData();
-                try {
-                    Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
-                    thread.start();
-                    thread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+        if (Device.isNetworkAvailable(getContext()))
+            databaseReference.orderByKey().limitToLast(5).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    try {
+                        Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
+                        thread.start();
+                        thread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-                for (DataSnapshot post : dataSnapshot.getChildren()) {
-//                    for (DataSnapshot post : user.getChildren()) {
+                    ArrayList<PostModel> postModels = new ArrayList<>();
+                    ArrayList<String> postKeys = new ArrayList<>();
+
+                    for (DataSnapshot post : dataSnapshot.getChildren()) {
                         String id = post.getKey();
                         PostModel postModel = new PostModel(id, post.getValue());
-                        oldesttimestamp = postModel.timestamp;
-                        adapter.addPost(postModel.userId,postModel);
-                        AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
-//                    }
+                        postModels.add(postModel);
+                        postKeys.add(id);
+                    }
+
+                    for (int i = postModels.size() - 1; i >= 0; i--) {
+                        adapter.addPost(postModels.get(i));
+                        final int j = i;
+                        AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModels.get(j)));
+                        lastLazyItem = postKeys.get(i);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("ERROR", "Failed to read value.", error.toException());
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.w("ERROR", "Failed to read value.", error.toException());
+                }
+            });
 
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
-            private int currentVisibleItemCount;
-            private int currentScrollState;
-            private int currentFirstVisibleItem;
-            private int totalItem;
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                this.currentScrollState = newState;
-                this.isScrollCompleted();
-            }
-
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-            }
+                if (!Device.isNetworkAvailable(getContext()))
+                    return;
+                if (!recyclerView.canScrollVertically(1) && recyclerView.canScrollVertically(-1)) {
+                    if (lastLazyItem != null) {
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference databaseReference = database.getReference("posts");
+                        databaseReference.orderByKey().endAt(lastLazyItem).limitToLast(6).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                try {
+                                    Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
+                                    thread.start();
+                                    thread.join();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
 
+                                ArrayList<PostModel> postModels = new ArrayList<>();
+                                ArrayList<String> postKeys = new ArrayList<>();
 
-            private void isScrollCompleted () {
-                if (totalItem - currentFirstVisibleItem == currentVisibleItemCount
-                        && this.currentScrollState == SCROLL_STATE_IDLE) {
-                    /** To do code here*/
-                    databaseReference.orderByChild("timestamp").startAt(oldesttimestamp).limitToFirst(2).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot post : dataSnapshot.getChildren()) {
-                                String id = post.getKey();
-                                PostModel postModel = new PostModel(id, post.getValue());
-                                if(postModel.timestamp == oldesttimestamp)
-                                    continue;
-                                oldesttimestamp = postModel.timestamp;
-                                adapter.addPost(postModel.userId,postModel);
-                                AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+                                for (DataSnapshot post : dataSnapshot.getChildren()) {
+                                    String id = post.getKey();
+                                    PostModel postModel = new PostModel(id, post.getValue());
+                                    postModels.add(postModel);
+                                    postKeys.add(id);
+                                }
+
+                                for (int i = postModels.size() - 2; i >= 0; i--) {
+                                    adapter.addPost(postModels.get(i));
+                                    final int j = i;
+                                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModels.get(j)));
+                                    lastLazyItem = postKeys.get(i);
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
+                            @Override
+                            public void onCancelled(DatabaseError error) {
+                                // Failed to read value
+                                Log.w("ERROR", "Failed to read value.", error.toException());
+                            }
+                        });
+                    }
                 }
-            };
+            }
         });
+
 
         if (!Device.isNetworkAvailable(getContext())) {
             adapter.clearData();

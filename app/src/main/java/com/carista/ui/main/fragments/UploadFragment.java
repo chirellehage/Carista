@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import com.carista.R;
 import com.carista.utils.Data;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -98,10 +99,10 @@ public class UploadFragment extends Fragment {
             uploadTask.addOnFailureListener(exception -> Snackbar.make(getActivity().getCurrentFocus(), R.string.failed_to_upload, Snackbar.LENGTH_SHORT).show())
                     .addOnSuccessListener(taskSnapshot -> {
                         taskSnapshot.getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
-                            Data.uploadPost(titleEditText.getText().toString().trim(), id, uri.toString());
+                            Data.uploadPost(titleEditText.getText().toString().trim(), id, uri.toString(), FirebaseAuth.getInstance().getCurrentUser().getUid());
                             imageView.setImageBitmap(null);
                             titleEditText.setText("");
-                            Snackbar.make(getActivity().getCurrentFocus(),R.string.success_upload,Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(getView().findViewById(R.id.upload_layout),R.string.success_upload,Snackbar.LENGTH_SHORT).show();
                         });
 
                     });

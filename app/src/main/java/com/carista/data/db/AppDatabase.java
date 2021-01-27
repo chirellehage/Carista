@@ -22,8 +22,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static void initialize(Context applicationContext) {
         appDatabase = Room.databaseBuilder(applicationContext,
-                AppDatabase.class, "carista.db")
-                .fallbackToDestructiveMigration()
+                AppDatabase.class, "caristav3.db")
                 .build();
     }
 
