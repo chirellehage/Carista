@@ -52,7 +52,7 @@ public class UserPostsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userPostsRef = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
+        DatabaseReference userPostsRef = mDatabase.child("/posts/");
 
         userPostsRef.addValueEventListener(new ValueEventListener() {
             @Override

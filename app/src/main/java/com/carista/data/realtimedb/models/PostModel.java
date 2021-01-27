@@ -28,15 +28,21 @@ public class PostModel {
     @PropertyName("timestamp")
     public long timestamp;
 
-    public PostModel(String title, String image) {
+    @ColumnInfo(name = "userId")
+    @PropertyName("userId")
+    public String userId;
+
+    public PostModel(String title, String image,String userId) {
         this.title = title;
         this.image = image;
-        this.timestamp = new Date().getTime();
+        this.timestamp = new Date().getTime() * -1;
+        this.userId = userId;
     }
 
     public PostModel(String id, Object data) {
         HashMap<String, Object> _data = (HashMap<String, Object>) data;
         this.id = id;
+        this.userId = (String) _data.get("userId");
         this.title = (String) _data.get("title");
         this.image = (String) _data.get("image");
         this.timestamp = (long) _data.get("timestamp");

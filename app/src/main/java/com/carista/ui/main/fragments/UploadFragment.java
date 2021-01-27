@@ -82,7 +82,6 @@ public class UploadFragment extends Fragment {
             FirebaseStorage storage = FirebaseStorage.getInstance();
             // Create a storage reference from our app
             StorageReference storageRef = storage.getReference("posts");
-            // Create a reference to "mountains.jpg"
             long id = new Date().getTime();
             String name = id + ".jpg";
             StorageReference imageRef = storageRef.child(name);

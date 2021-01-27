@@ -27,9 +27,9 @@ public class Data {
     public static void uploadPost(String title, long id, String imageURL) {
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        DatabaseReference post = mDatabase.child("/posts/" + FirebaseAuth.getInstance().getCurrentUser().getUid() + "/" + id);
+        DatabaseReference post = mDatabase.child("/posts/" + id);
 
-        post.setValue(new PostModel(title, imageURL));
+        post.setValue(new PostModel(title, imageURL,FirebaseAuth.getInstance().getCurrentUser().getUid()));
     }
 
     public static void uploadAvatarLink(String avatarURL) {
@@ -73,14 +73,14 @@ public class Data {
         posts.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot userPosts: snapshot.getChildren()){
-                    for(DataSnapshot postIds: userPosts.getChildren()){
+//                for(DataSnapshot userPosts: snapshot.getChildren()){
+                    for(DataSnapshot postIds: snapshot.getChildren()){
                         if(postIds.getKey().equals(postId)){
-                            DatabaseReference postLikes=posts.child(userPosts.getKey().toString()).child(postId);
+                            DatabaseReference postLikes=posts.child(postId);
                             postLikes.child("comments").push().setValue(commentModel);
                         }
                     }
-                }
+//                }
             }
 
             @Override

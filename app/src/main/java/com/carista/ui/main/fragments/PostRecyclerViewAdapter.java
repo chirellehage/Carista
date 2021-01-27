@@ -1,5 +1,7 @@
 package com.carista.ui.main.fragments;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,7 +92,27 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
 
         holder.mimgViewRemoveIcon.setOnClickListener(v -> {
             int position1 = holder.getAdapterPosition();
-            removePost(position1);
+            AlertDialog.Builder alert = new AlertDialog.Builder(holder.mView.getContext());
+            alert.setTitle("Delete Post!");
+            alert.setMessage("Are you sure to delete record");
+            alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    removePost(position1);
+                    dialog.dismiss();
+                }
+            });
+            alert.setNegativeButton("NO",  new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            alert.show();
+
         });
 
         holder.mLikeCheckbox.setOnClickListener(view -> {

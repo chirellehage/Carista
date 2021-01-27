@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,10 +27,13 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
+
 public class PostFragment extends Fragment {
 
     private PostRecyclerViewAdapter adapter;
-
+    private  RecyclerView recyclerView;
+    private long oldesttimestamp;
     public PostFragment() {
     }
 
@@ -43,10 +47,12 @@ public class PostFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_item_list, container, false);
         Context context = view.getContext();
-        RecyclerView recyclerView = view.findViewById(R.id.list);
+        recyclerView = view.findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
         adapter = new PostRecyclerViewAdapter();
         recyclerView.setAdapter(adapter);
+
         return view;
     }
 
@@ -55,7 +61,7 @@ public class PostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference("posts");
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        databaseReference.orderByChild("timestamp").limitToFirst(2).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 adapter.clearData();
@@ -67,13 +73,14 @@ public class PostFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                for (DataSnapshot user : dataSnapshot.getChildren()) {
-                    for (DataSnapshot post : user.getChildren()) {
+                for (DataSnapshot post : dataSnapshot.getChildren()) {
+//                    for (DataSnapshot post : user.getChildren()) {
                         String id = post.getKey();
                         PostModel postModel = new PostModel(id, post.getValue());
-                        adapter.addPost(user.getKey(),postModel);
+                        oldesttimestamp = postModel.timestamp;
+                        adapter.addPost(postModel.userId,postModel);
                         AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
-                    }
+//                    }
                 }
             }
 
@@ -82,6 +89,52 @@ public class PostFragment extends Fragment {
                 // Failed to read value
                 Log.w("ERROR", "Failed to read value.", error.toException());
             }
+        });
+
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int currentVisibleItemCount;
+            private int currentScrollState;
+            private int currentFirstVisibleItem;
+            private int totalItem;
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                this.currentScrollState = newState;
+                this.isScrollCompleted();
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+            }
+
+
+            private void isScrollCompleted () {
+                if (totalItem - currentFirstVisibleItem == currentVisibleItemCount
+                        && this.currentScrollState == SCROLL_STATE_IDLE) {
+                    /** To do code here*/
+                    databaseReference.orderByChild("timestamp").startAt(oldesttimestamp).limitToFirst(2).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot post : dataSnapshot.getChildren()) {
+                                String id = post.getKey();
+                                PostModel postModel = new PostModel(id, post.getValue());
+                                if(postModel.timestamp == oldesttimestamp)
+                                    continue;
+                                oldesttimestamp = postModel.timestamp;
+                                adapter.addPost(postModel.userId,postModel);
+                                AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                }
+            };
         });
 
         if (!Device.isNetworkAvailable(getContext())) {
