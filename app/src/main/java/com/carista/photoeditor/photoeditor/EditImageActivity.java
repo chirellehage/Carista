@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -185,7 +183,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         imgShare = findViewById(R.id.imgShare);
         imgShare.setOnClickListener(this);
 
-        imgPOST=findViewById(R.id.imgPOST);
+        imgPOST = findViewById(R.id.imgPOST);
         imgPOST.setOnClickListener(this);
     }
 
@@ -261,7 +259,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 LayoutInflater layoutinflater = getLayoutInflater();
-                View Dview = layoutinflater.inflate(R.layout.edittext_with_button,null);
+                View Dview = layoutinflater.inflate(R.layout.edittext_with_button, null);
                 builder.setCancelable(false);
                 builder.setView(Dview);
                 edittext = (EditText) Dview.findViewById(R.id.post_title);
@@ -327,6 +325,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                         mSaveImageUri = Uri.fromFile(new File(imagePath));
                         mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
                     }
+
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         hideLoading();
@@ -342,7 +341,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     }
 
     @SuppressLint("MissingPermission")
-    private void uploadPost(){
+    private void uploadPost() {
 
         if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             File file = new File(Environment.getExternalStorageDirectory()
@@ -363,7 +362,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                         showSnackbar("Image Saved Successfully");
                         mSaveImageUri = Uri.fromFile(new File(imagePath));
                         mPhotoEditorView.getSource().setImageURI(mSaveImageUri);
-                        img=mPhotoEditorView.getSource();
+                        img = mPhotoEditorView.getSource();
 
                         if (edittext.getText() == null || edittext.getText().toString().isEmpty()) {
                             Snackbar.make(getCurrentFocus(), R.string.insert_title, Snackbar.LENGTH_SHORT).show();
@@ -393,12 +392,13 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                                         Data.uploadPost(edittext.getText().toString().trim(), id, uri.toString(), FirebaseAuth.getInstance().getCurrentUser().getUid());
                                         //mPhotoEditorView.getSource().setImageBitmap(null);
                                         edittext.setText("");
-                                        Snackbar.make(getCurrentFocus(), R.string.success_upload, Snackbar.LENGTH_SHORT).show();
-                                        Intent intent=new Intent(getApplicationContext(),MainActivity.class);
+                                        Snackbar.make(findViewById(R.id.rootView), R.string.success_upload, Snackbar.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                         startActivity(intent);
                                     });
                                 });
                     }
+
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         hideLoading();

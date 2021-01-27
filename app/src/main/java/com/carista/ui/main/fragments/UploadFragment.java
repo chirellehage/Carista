@@ -103,7 +103,7 @@ public class UploadFragment extends Fragment {
                             Data.uploadPost(titleEditText.getText().toString().trim(), id, uri.toString(), FirebaseAuth.getInstance().getCurrentUser().getUid());
                             imageView.setImageBitmap(null);
                             titleEditText.setText("");
-                            Snackbar.make(getActivity().getCurrentFocus(),R.string.success_upload,Snackbar.LENGTH_SHORT).show();
+                            Snackbar.make(getView().findViewById(R.id.upload_layout),R.string.success_upload,Snackbar.LENGTH_SHORT).show();
                         });
 
                     });
