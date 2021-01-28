@@ -10,12 +10,20 @@ import android.view.ViewGroup;
 import com.carista.R;
 import com.carista.data.db.AppDatabase;
 import com.carista.data.realtimedb.models.PostModel;
+import com.carista.utils.Device;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -51,38 +59,35 @@ public class UserPostsFragment extends Fragment {
     @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference userPostsRef = mDatabase.child("posts");
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference query = db.collection("posts");
+        if (Device.isNetworkAvailable(getContext())) {
 
-        userPostsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NotNull DataSnapshot dataSnapshot) {
-                adapter.clearData();
+            query.whereEqualTo("userId",FirebaseAuth.getInstance().getCurrentUser().getUid()).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if (error != null) {
+                        Log.w("LIST_USER_POSTS", "listen:error", error);
+                        return;
+                    }
+                    adapter.clearData();
 
-                /*try {
-                    Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
-                    thread.start();
-                    thread.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
-
-                for (DataSnapshot post : dataSnapshot.getChildren()) {
-                    if(post.child("userId").getValue().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                        String id = post.getKey();
-                        PostModel postModel = new PostModel(id, post.getValue());
+                    for (DocumentSnapshot doc : value.getDocuments()) {
+                        String id = doc.getId();
+                        PostModel postModel = new PostModel(id, doc.getData());
                         adapter.addPost(postModel);
                     }
-                    //AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+
+
                 }
-            }
-
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.w("ERROR", "Failed to read value.", error.toException());
-            }
-        });
+            });
+        }
+        if (!Device.isNetworkAvailable(getContext())) {
+            adapter.clearData();
+            AppDatabase.executeQuery(() -> adapter.addPost(AppDatabase.getInstance().postDao().getAll()));
+            Snackbar.make(getView().findViewById(R.id.list),
+                    R.string.network_unavailable,
+                    Snackbar.LENGTH_SHORT).show();
+        }
     }
 }

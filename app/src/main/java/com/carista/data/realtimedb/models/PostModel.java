@@ -10,6 +10,7 @@ import com.google.firebase.database.Exclude;
 import com.google.firebase.database.PropertyName;
 import com.google.gson.annotations.Expose;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -67,9 +68,9 @@ public class PostModel {
         this.image = (String) _data.get("image");
         this.timestamp = (long) _data.get("timestamp");
         this.userId = (String) _data.get("userId");
-        if (_data.get("likes") != null) {
-            this.likes = ((HashMap) _data.get("likes")).size();
-            for (Object like : ((HashMap) _data.get("likes")).values().toArray()) {
+        if (_data.get("LikesArray") != null) {
+            this.likes = ((ArrayList<String>) _data.get("LikesArray")).size();
+            for (Object like : ((ArrayList<String>)_data.get("LikesArray"))) {
                 if (like.toString().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                     this.likedByUser = true;
                     break;
