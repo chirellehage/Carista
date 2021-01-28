@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,8 +23,16 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
+import static androidx.recyclerview.widget.RecyclerView.SCROLL_STATE_IDLE;
 
 public class PostFragment extends Fragment {
 
@@ -32,6 +40,7 @@ public class PostFragment extends Fragment {
     private RecyclerView recyclerView;
     private String lastLazyItem;
     private String lastLazyKey;
+    private long oldPosttimestamp;
 
     public PostFragment() {
     }
@@ -59,10 +68,19 @@ public class PostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference("posts");
-        if (Device.isNetworkAvailable(getContext()))
-            databaseReference.orderByKey().limitToLast(5).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference query = db.collection("posts");
+
+        if (Device.isNetworkAvailable(getContext())) {
+
+            query.orderBy("timestamp", Query.Direction.DESCENDING).limit(3).addSnapshotListener(new EventListener<QuerySnapshot>() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+                public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                    if(error != null){
+                        Log.w("LIST_POSTS", "listen:error", error);
+                        return;
+                    }
+                    adapter.clearData();
                     try {
                         Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
                         thread.start();
@@ -71,79 +89,59 @@ public class PostFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    ArrayList<PostModel> postModels = new ArrayList<>();
-                    ArrayList<String> postKeys = new ArrayList<>();
-
-                    for (DataSnapshot post : dataSnapshot.getChildren()) {
-                        String id = post.getKey();
-                        PostModel postModel = new PostModel(id, post.getValue());
-                        postModels.add(postModel);
-                        postKeys.add(id);
+                    for(DocumentSnapshot doc : value.getDocuments()){
+                        String id = doc.getId();
+                        PostModel postModel = new PostModel(id, doc.getData());
+                        oldPosttimestamp = postModel.timestamp;
+                        adapter.addPost(postModel);
+                        AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
                     }
 
-                    for (int i = postModels.size() - 1; i >= 0; i--) {
-                        adapter.addPost(postModels.get(i));
-                        final int j = i;
-                        AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModels.get(j)));
-                        lastLazyItem = postKeys.get(i);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    // Failed to read value
-                    Log.w("ERROR", "Failed to read value.", error.toException());
                 }
             });
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        }
+
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+            private int currentVisibleItemCount;
+            private int currentScrollState;
+            private int currentFirstVisibleItem;
+            private int totalItem;
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                this.currentScrollState = newState;
+                this.isScrollCompleted();
+            }
+
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                if (!Device.isNetworkAvailable(getContext()))
-                    return;
-                if (!recyclerView.canScrollVertically(1) && recyclerView.canScrollVertically(-1)) {
-                    if (lastLazyItem != null) {
-                        FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference databaseReference = database.getReference("posts");
-                        databaseReference.orderByKey().endAt(lastLazyItem).limitToLast(6).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                try {
-                                    Thread thread = new Thread(() -> AppDatabase.getInstance().postDao().deleteAll());
-                                    thread.start();
-                                    thread.join();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-
-                                ArrayList<PostModel> postModels = new ArrayList<>();
-                                ArrayList<String> postKeys = new ArrayList<>();
-
-                                for (DataSnapshot post : dataSnapshot.getChildren()) {
-                                    String id = post.getKey();
-                                    PostModel postModel = new PostModel(id, post.getValue());
-                                    postModels.add(postModel);
-                                    postKeys.add(id);
-                                }
-
-                                for (int i = postModels.size() - 2; i >= 0; i--) {
-                                    adapter.addPost(postModels.get(i));
-                                    final int j = i;
-                                    AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModels.get(j)));
-                                    lastLazyItem = postKeys.get(i);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError error) {
-                                // Failed to read value
-                                Log.w("ERROR", "Failed to read value.", error.toException());
-                            }
-                        });
-                    }
-                }
             }
+
+            private void isScrollCompleted () {
+                if (totalItem - currentFirstVisibleItem == currentVisibleItemCount
+                        && this.currentScrollState == SCROLL_STATE_IDLE) {
+                    query.orderBy("timestamp", Query.Direction.DESCENDING).startAt(oldPosttimestamp).limit(3).addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                            if(error != null){
+                                Log.w("LIST_POSTS", "listen:error", error);
+                                return;
+                            }
+                            for(DocumentSnapshot doc : value.getDocuments()){
+                                String id = doc.getId();
+                                PostModel postModel = new PostModel(id, doc.getData());
+                                if(postModel.timestamp == oldPosttimestamp)
+                                    continue;
+                                oldPosttimestamp = postModel.timestamp;
+                                adapter.addPost(postModel);
+//                                AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+                            }
+                        }
+                    });
+                }
+            };
         });
 
 

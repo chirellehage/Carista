@@ -13,7 +13,7 @@ import com.carista.data.realtimedb.models.PostModel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {PostModel.class}, version = 1)
+@Database(entities = {PostModel.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static ExecutorService executor = Executors.newFixedThreadPool(10);
@@ -22,7 +22,7 @@ public abstract class AppDatabase extends RoomDatabase {
 
     public static void initialize(Context applicationContext) {
         appDatabase = Room.databaseBuilder(applicationContext,
-                AppDatabase.class, "caristav3.db")
+                AppDatabase.class, "caristav4.db")
                 .build();
     }
 

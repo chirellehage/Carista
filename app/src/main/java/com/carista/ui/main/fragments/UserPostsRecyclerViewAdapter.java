@@ -38,6 +38,10 @@ public class UserPostsRecyclerViewAdapter extends RecyclerView.Adapter<UserPosts
         this.items.addAll(Arrays.asList(postModel));
         notifyDataSetChanged();
     }
+    public void addPost(List<PostModel> postModels) {
+        this.items.addAll(postModels);
+        notifyDataSetChanged();
+    }
 
     public void showQuickView(View v ,int position) {
         alertTitle = new AlertDialog.Builder(v.getContext());
