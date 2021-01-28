@@ -113,30 +113,6 @@ public class Data {
     }
 
     public static void setCommentAvatarNickname(CommentModel commentModel, CircleImageView userAvatar, TextView userNicknameText) {
-//        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-//        DatabaseReference userRef = mDatabase.child("/users/" + commentModel.user);
-//        userRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                DataSnapshot avatar = dataSnapshot.child("avatar");
-//                DataSnapshot nickname = dataSnapshot.child("nickname");
-//                String nicknameText = null;
-//                if (nickname == null || nickname.getValue() == null || nickname.getValue().toString().isEmpty())
-//                    nicknameText = "<b>Anonymous</b> " + commentModel.comment;
-//                else
-//                    nicknameText = "<b>" + nickname.getValue().toString() + "</b> " + commentModel.comment;
-//                userNicknameText.setText(Html.fromHtml(nicknameText));
-//
-//                if (avatar.getValue() != null)
-//                    Picasso.get().load(avatar.getValue().toString()).into(userAvatar);
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError error) {
-//                // Failed to read value
-//                Log.w("ERROR", "Failed to read value.", error.toException());
-//            }
-//        });
 
         //FireStore
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -197,6 +173,9 @@ public class Data {
                 if (error != null)
                     return;
                 if(value != null && value.exists()){
+                    if(!value.contains("LikesArray")){
+                        view1.setText("Press Like button to support");
+                    }
                     ArrayList<String> likesList = (ArrayList<String>)value.get("LikesArray");
                     if(likesList != null ){
                         if(likesList.contains(FirebaseAuth.getInstance().getCurrentUser().getUid())){

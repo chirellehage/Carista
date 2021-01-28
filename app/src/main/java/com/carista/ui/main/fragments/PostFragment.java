@@ -120,6 +120,7 @@ public class PostFragment extends Fragment {
                 this.isScrollCompleted();
             }
 
+
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -143,7 +144,7 @@ public class PostFragment extends Fragment {
                                     continue;
                                 oldPosttimestamp = postModel.timestamp;
                                 adapter.addPost(postModel);
-                                AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
+//                                AppDatabase.executeQuery(() -> AppDatabase.getInstance().postDao().insertAll(postModel));
                             }
                         }
                     });
