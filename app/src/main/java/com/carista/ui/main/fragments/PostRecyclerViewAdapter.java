@@ -7,7 +7,8 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -99,8 +100,26 @@ public class PostRecyclerViewAdapter extends RecyclerView.Adapter<PostRecyclerVi
 
         holder.mimgViewRemoveIcon.setOnClickListener(v -> {
             int position1 = holder.getAdapterPosition();
-            if (this.items.get(position1).userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                removePost(position1);
+            AlertDialog.Builder alert = new AlertDialog.Builder(holder.mView.getContext());
+            alert.setTitle("Delete Post!");
+            alert.setMessage("Are you sure to delete record");
+            alert.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    removePost(position1);
+                    dialog.dismiss();
+                }
+            });
+            alert.setNegativeButton("NO",  new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            alert.show();
         });
 
         holder.mLikeCheckbox.setOnClickListener(view -> {

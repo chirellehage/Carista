@@ -10,7 +10,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
-
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +33,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
-
+import java.util.HashMap;
+import java.util.List;
 
 public class CommentsFragment extends Fragment {
 
@@ -64,27 +70,24 @@ public class CommentsFragment extends Fragment {
 
         String postId=getActivity().getIntent().getExtras().getString("postId");
 
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference postRef=mDatabase.child("posts");
-        postRef.addValueEventListener(new ValueEventListener() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference query = db.collection("posts").document(postId);
+        query.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if(error != null){
+                    Log.w("LIST_COMMENTS", "listen:error", error);
+                    return;
+                }
                 adapter.clearData();
-                for(DataSnapshot postIds: snapshot.getChildren()){
-                    if(postIds.getKey().equals(postId)){
-                        if(postIds.child("comments")==null)
-                            return;
-                        for(DataSnapshot comment: postIds.child("comments").getChildren()){
-                            adapter.addComment(new CommentModel(comment.getValue()));
-                        }
+                List<Object> comments = (List<Object>) value.get("Comments");
+                if(comments != null){
+                    for (Object doc : comments){
+                        adapter.addComment(new CommentModel(doc));
                     }
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
         });
+
     }
 }
